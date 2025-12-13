@@ -1,0 +1,1675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resistor Laboratory</title>
+  <style>
+    /* ==================== CSS RESET & BASE ==================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.5;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      min-height: 100vh;
+      background-color: #f8fafc;
+      color: #1e293b;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; }
+    ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+    /* ==================== NAVIGATION ==================== */
+    .nav {
+      background-color: #1e293b;
+      color: white;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .nav-container {
+      max-width: 72rem;
+      margin: 0 auto;
+      padding: 0 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 4rem;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: bold;
+      font-size: 1.25rem;
+    }
+
+    .nav-brand-icon {
+      font-size: 1.5rem;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .nav-tab {
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #cbd5e1;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .nav-tab:hover {
+      background-color: #334155;
+    }
+
+    .nav-tab.active-learn {
+      background-color: #334155;
+      color: white;
+    }
+
+    .nav-tab.active-practice,
+    .nav-tab.active-upload {
+      background-color: #2563eb;
+      color: white;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    }
+
+    /* ==================== MAIN CONTENT ==================== */
+    .main-content {
+      flex: 1;
+      width: 100%;
+    }
+
+    .container {
+      max-width: 56rem;
+      margin: 0 auto;
+      padding: 1rem;
+      width: 100%;
+    }
+
+    @media (min-width: 768px) {
+      .container {
+        padding: 2rem;
+      }
+    }
+
+    /* ==================== CARDS ==================== */
+    .card {
+      background-color: white;
+      border-radius: 1rem;
+      box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+      border: 1px solid #f1f5f9;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-gradient-top {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 0.5rem;
+    }
+
+    .gradient-green {
+      background: linear-gradient(to right, #34d399, #14b8a6);
+    }
+
+    .gradient-blue {
+      background: linear-gradient(to right, #3b82f6, #a855f7);
+    }
+
+    .gradient-yellow {
+      background: linear-gradient(to right, #facc15, #f97316);
+    }
+
+    /* ==================== TYPOGRAPHY ==================== */
+    .text-center { text-align: center; }
+    .text-left { text-align: left; }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .section-header h2 {
+      font-size: 1.875rem;
+      font-weight: bold;
+      color: #1e293b;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-header p {
+      color: #64748b;
+    }
+
+    /* ==================== FORM CONTROLS ==================== */
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (min-width: 768px) {
+      .controls-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    .select-control {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .select-control label {
+      font-size: 0.75rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: #64748b;
+    }
+
+    .select-control select {
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      border: 1px solid #cbd5e1;
+      background-color: white;
+      box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      transition: all 0.2s;
+      font-size: 1rem;
+    }
+
+    .select-control select:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgb(59 130 246 / 0.2);
+    }
+
+    .input-field {
+      width: 100%;
+      background-color: #f8fafc;
+      border: 2px solid #e2e8f0;
+      color: #0f172a;
+      font-size: 1.5rem;
+      font-family: monospace;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      transition: border-color 0.2s;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+
+    .btn {
+      padding: 1rem 2rem;
+      border-radius: 0.5rem;
+      font-weight: bold;
+      font-size: 1.125rem;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background-color: #2563eb;
+      color: white;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    }
+
+    .btn-primary:hover {
+      background-color: #1d4ed8;
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-primary:active {
+      transform: scale(0.95);
+    }
+
+    .btn-dark {
+      background-color: #0f172a;
+      color: white;
+      padding: 0.75rem 2rem;
+      border-radius: 9999px;
+      font-size: 1.125rem;
+      box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    }
+
+    .btn-dark:hover {
+      background-color: #1e293b;
+      box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+    }
+
+    .btn-hint {
+      width: 100%;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+      border: 1px solid;
+    }
+
+    .btn-hint:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-hint-amber {
+      background-color: #fffbeb;
+      color: #b45309;
+      border-color: #fde68a;
+    }
+
+    .btn-hint-amber:hover:not(:disabled) {
+      background-color: #fef3c7;
+    }
+
+    .btn-hint-orange {
+      background-color: #fff7ed;
+      color: #c2410c;
+      border-color: #fed7aa;
+    }
+
+    .btn-hint-orange:hover:not(:disabled) {
+      background-color: #ffedd5;
+    }
+
+    .btn-hint-slate {
+      background-color: #f8fafc;
+      color: #475569;
+      border-color: #e2e8f0;
+    }
+
+    .btn-hint-slate:hover:not(:disabled) {
+      background-color: #f1f5f9;
+    }
+
+    /* ==================== RESISTANCE DISPLAY ==================== */
+    .resistance-display {
+      margin-top: 2rem;
+      font-size: 2.25rem;
+      font-family: monospace;
+      font-weight: bold;
+      color: #1e293b;
+      background-color: #f1f5f9;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.75rem;
+      border: 1px solid #e2e8f0;
+      box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+    }
+
+    .resistance-display .tolerance {
+      font-size: 1.125rem;
+      color: #94a3b8;
+      font-family: system-ui, sans-serif;
+      font-weight: normal;
+    }
+
+    /* ==================== EXPLANATION BOX ==================== */
+    .explanation-box {
+      background-color: #eff6ff;
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      border: 1px solid #dbeafe;
+      margin-bottom: 3rem;
+    }
+
+    .explanation-box h3 {
+      font-size: 1.125rem;
+      font-weight: bold;
+      color: #1e3a8a;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .explanation-box .icon {
+      background-color: #bfdbfe;
+      padding: 0.25rem;
+      border-radius: 0.25rem;
+      font-size: 1.25rem;
+    }
+
+    .explanation-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      color: #1e3a8a;
+      margin-bottom: 1rem;
+    }
+
+    .explanation-step:last-child {
+      margin-bottom: 0;
+    }
+
+    .step-number {
+      background-color: white;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      flex-shrink: 0;
+    }
+
+    .step-content p {
+      font-weight: 600;
+    }
+
+    .step-content .detail {
+      font-size: 0.875rem;
+      opacity: 0.8;
+    }
+
+    .step-content .formula {
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+      font-family: monospace;
+      background-color: #dbeafe;
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+    }
+
+    /* ==================== COMMON RESISTORS ==================== */
+    .common-resistors-header {
+      font-size: 1.25rem;
+      font-weight: bold;
+      color: #334155;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .common-resistors-header span {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: normal;
+      color: #64748b;
+      margin-top: 0.25rem;
+    }
+
+    .resistors-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    @media (min-width: 768px) {
+      .resistors-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .resistors-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .resistor-preset {
+      background-color: white;
+      padding: 1rem;
+      border-radius: 0.75rem;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .resistor-preset:hover {
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      border-color: #93c5fd;
+      transform: translateY(-2px);
+    }
+
+    .resistor-preset .label {
+      font-weight: bold;
+      font-size: 1.25rem;
+      color: #1e293b;
+      transition: color 0.2s;
+    }
+
+    .resistor-preset:hover .label {
+      color: #2563eb;
+    }
+
+    .resistor-preset .use-case {
+      font-size: 0.75rem;
+      color: #64748b;
+      font-weight: 500;
+      margin-top: 0.25rem;
+      margin-bottom: 0.25rem;
+      background-color: #f8fafc;
+      display: inline-block;
+      padding: 0.125rem 0.375rem;
+      border-radius: 0.25rem;
+      border: 1px solid #f1f5f9;
+    }
+
+    .resistor-preset .color-dots {
+      display: flex;
+      gap: 0.25rem;
+      margin-top: 0.25rem;
+    }
+
+    .resistor-preset .color-dot {
+      width: 0.75rem;
+      height: 0.75rem;
+      border-radius: 9999px;
+    }
+
+    .resistor-preset .mini-svg {
+      width: 6rem;
+      height: 3rem;
+      flex-shrink: 0;
+    }
+
+    /* ==================== RESISTOR SVG ==================== */
+    .resistor-svg-container {
+      width: 100%;
+      max-width: 40rem;
+      margin: 0 auto;
+      padding: 1rem;
+      transition: transform 0.5s;
+    }
+
+    .resistor-svg-container:hover {
+      transform: scale(1.05);
+    }
+
+    .resistor-svg {
+      width: 100%;
+      height: auto;
+      filter: drop-shadow(0 25px 25px rgb(0 0 0 / 0.15));
+    }
+
+    /* ==================== PRACTICE MODE ==================== */
+    .practice-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .practice-header h2 {
+      font-size: 1.875rem;
+      font-weight: bold;
+      color: #0f172a;
+      letter-spacing: -0.025em;
+    }
+
+    .practice-header p {
+      color: #64748b;
+    }
+
+    .stats-container {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .stat-box {
+      background-color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      border: 1px solid #e2e8f0;
+    }
+
+    .stat-box .stat-label {
+      display: block;
+      font-size: 0.75rem;
+      color: #94a3b8;
+    }
+
+    .stat-box .stat-value {
+      font-size: 1.25rem;
+      font-weight: bold;
+    }
+
+    .stat-box .stat-value.streak {
+      color: #f97316;
+    }
+
+    .stat-box .stat-value.score {
+      color: #16a34a;
+    }
+
+    .hint-indicators {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.875rem;
+      color: #64748b;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 1rem;
+    }
+
+    .hint-indicator {
+      background-color: #f1f5f9;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      border: 1px solid #e2e8f0;
+    }
+
+    .hint-indicator.tolerance {
+      background-color: #fef3c7;
+      border-color: #fde68a;
+      color: #92400e;
+    }
+
+    .practice-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+      .practice-grid {
+        grid-template-columns: 2fr 1fr;
+      }
+    }
+
+    .input-card {
+      background-color: white;
+      border-radius: 0.75rem;
+      box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      border: 1px solid #e2e8f0;
+      padding: 1.5rem;
+    }
+
+    .input-card label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .input-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    @media (min-width: 640px) {
+      .input-row {
+        flex-direction: row;
+      }
+    }
+
+    .input-row .input-field {
+      flex: 1;
+    }
+
+    .input-row .btn {
+      width: 100%;
+    }
+
+    @media (min-width: 640px) {
+      .input-row .btn {
+        width: auto;
+      }
+    }
+
+    .feedback-incorrect {
+      margin-top: 0.5rem;
+      padding: 0.75rem;
+      background-color: #fef2f2;
+      color: #b91c1c;
+      border-radius: 0.5rem;
+      border: 1px solid #fecaca;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .feedback-correct {
+      text-align: center;
+      padding: 1.5rem;
+    }
+
+    .feedback-correct h2 {
+      font-size: 1.875rem;
+      font-weight: bold;
+      color: #22c55e;
+      margin-bottom: 0.5rem;
+    }
+
+    .feedback-correct p {
+      color: #64748b;
+      margin-bottom: 1.5rem;
+    }
+
+    .toolkit-card {
+      background-color: white;
+      border-radius: 0.75rem;
+      box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      border: 1px solid #e2e8f0;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .toolkit-card h3 {
+      font-size: 0.875rem;
+      font-weight: bold;
+      color: #94a3b8;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ==================== MODAL ==================== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      padding: 1rem;
+    }
+
+    .modal-content {
+      background-color: white;
+      border-radius: 0.75rem;
+      box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+      width: 100%;
+      max-width: 48rem;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      background-color: #1e293b;
+      color: white;
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h2 {
+      font-size: 1.25rem;
+      font-weight: bold;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: #d1d5db;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+    }
+
+    .modal-close:hover {
+      color: white;
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+      overflow-y: auto;
+    }
+
+    .color-table {
+      width: 100%;
+      font-size: 0.875rem;
+      text-align: left;
+      border-collapse: collapse;
+    }
+
+    @media (min-width: 768px) {
+      .color-table {
+        font-size: 1rem;
+      }
+    }
+
+    .color-table th {
+      padding: 0.5rem;
+      border-bottom: 2px solid #e5e7eb;
+    }
+
+    .color-table td {
+      padding: 0.5rem;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .color-table tr:hover td {
+      background-color: #f9fafb;
+    }
+
+    .color-table .color-cell {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 500;
+    }
+
+    .color-swatch {
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 0.25rem;
+      border: 1px solid #d1d5db;
+      box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    }
+
+    .modal-info {
+      margin-top: 1.5rem;
+      background-color: #eff6ff;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      border: 1px solid #dbeafe;
+    }
+
+    .modal-info h3 {
+      font-weight: bold;
+      color: #1e40af;
+      margin-bottom: 0.5rem;
+    }
+
+    .modal-info p {
+      color: #1e3a8a;
+    }
+
+    .modal-info .example {
+      font-size: 0.875rem;
+      color: #1d4ed8;
+      margin-top: 0.25rem;
+    }
+
+    /* ==================== UPLOAD MODE ==================== */
+    .drop-zone {
+      width: 100%;
+      border: 2px dashed #cbd5e1;
+      border-radius: 0.75rem;
+      padding: 3rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .drop-zone:hover {
+      border-color: #94a3b8;
+      background-color: #f8fafc;
+    }
+
+    .drop-zone.dragging {
+      border-color: #3b82f6;
+      background-color: #eff6ff;
+    }
+
+    .drop-zone-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .drop-zone-text {
+      color: #64748b;
+      margin-bottom: 1rem;
+    }
+
+    .drop-zone-text strong {
+      color: #3b82f6;
+    }
+
+    .drop-zone-hint {
+      font-size: 0.875rem;
+      color: #94a3b8;
+    }
+
+    .file-input-label {
+      display: inline-block;
+      background-color: #3b82f6;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      margin-top: 1rem;
+    }
+
+    .file-input-label:hover {
+      background-color: #2563eb;
+    }
+
+    .preview-container {
+      width: 100%;
+    }
+
+    .preview-image {
+      max-height: 16rem;
+      margin: 0 auto;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      display: block;
+    }
+
+    .preview-actions {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .btn-remove {
+      background-color: #fef2f2;
+      color: #dc2626;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      border: 1px solid #fecaca;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-remove:hover {
+      background-color: #fee2e2;
+    }
+
+    /* ==================== ANIMATIONS ==================== */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-fade-in {
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    .animate-pulse {
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    /* ==================== UTILITIES ==================== */
+    .hidden { display: none; }
+    .flex { display: flex; }
+    .flex-col { flex-direction: column; }
+    .items-center { align-items: center; }
+    .justify-center { justify-content: center; }
+    .gap-2 { gap: 0.5rem; }
+    .gap-4 { gap: 1rem; }
+    .mt-2 { margin-top: 0.5rem; }
+    .mt-4 { margin-top: 1rem; }
+    .mb-4 { margin-bottom: 1rem; }
+    .pb-20 { padding-bottom: 5rem; }
+  </style>
+</head>
+<body>
+  <nav class="nav" id="navbar"></nav>
+  <main class="main-content" id="main-content"></main>
+  <div id="modal-container"></div>
+
+  <script>
+    // ==================== CONSTANTS & DATA ====================
+    const COLOR_CODES = {
+      Black:  { hex: '#000000', value: 0, multiplier: 1, textClass: 'light' },
+      Brown:  { hex: '#8B4513', value: 1, multiplier: 10, tolerance: 1, textClass: 'light' },
+      Red:    { hex: '#DC2626', value: 2, multiplier: 100, tolerance: 2, textClass: 'light' },
+      Orange: { hex: '#F97316', value: 3, multiplier: 1000, textClass: 'dark' },
+      Yellow: { hex: '#EAB308', value: 4, multiplier: 10000, textClass: 'dark' },
+      Green:  { hex: '#22C55E', value: 5, multiplier: 100000, tolerance: 0.5, textClass: 'dark' },
+      Blue:   { hex: '#2563EB', value: 6, multiplier: 1000000, tolerance: 0.25, textClass: 'light' },
+      Violet: { hex: '#7C3AED', value: 7, multiplier: 10000000, tolerance: 0.1, textClass: 'light' },
+      Grey:   { hex: '#6B7280', value: 8, tolerance: 0.05, textClass: 'light' },
+      White:  { hex: '#F3F4F6', value: 9, textClass: 'dark' },
+      Gold:   { hex: '#FFD700', multiplier: 0.1, tolerance: 5, textClass: 'dark' },
+      Silver: { hex: '#C0C0C0', multiplier: 0.01, tolerance: 10, textClass: 'dark' }
+    };
+
+    const VALID_DIGIT_COLORS = ['Black', 'Brown', 'Red', 'Orange', 'Yellow', 'Green', 'Blue', 'Violet', 'Grey', 'White'];
+    const VALID_FIRST_BAND_COLORS = ['Brown', 'Red', 'Orange', 'Yellow', 'Green', 'Blue', 'Violet', 'Grey', 'White'];
+    const VALID_MULTIPLIER_COLORS = ['Black', 'Brown', 'Red', 'Orange', 'Yellow', 'Green', 'Blue', 'Gold', 'Silver'];
+    const VALID_TOLERANCE_COLORS = ['Gold', 'Silver', 'Brown', 'Red'];
+
+    const COMMON_RESISTORS = [
+      { value: 100, bands: ['Brown', 'Black', 'Brown', 'Gold'], label: '100 Ohm', useCase: 'Current limiting for LEDs' },
+      { value: 220, bands: ['Red', 'Red', 'Brown', 'Gold'], label: '220 Ohm', useCase: 'Standard LED protection (5V)' },
+      { value: 330, bands: ['Orange', 'Orange', 'Brown', 'Gold'], label: '330 Ohm', useCase: 'Safer LED protection' },
+      { value: 1000, bands: ['Brown', 'Black', 'Red', 'Gold'], label: '1 kOhm', useCase: 'Transistor base resistor' },
+      { value: 4700, bands: ['Yellow', 'Violet', 'Red', 'Gold'], label: '4.7 kOhm', useCase: 'I2C pull-up resistor' },
+      { value: 10000, bands: ['Brown', 'Black', 'Orange', 'Gold'], label: '10 kOhm', useCase: 'Standard Arduino pull-up' },
+      { value: 100000, bands: ['Brown', 'Black', 'Yellow', 'Gold'], label: '100 kOhm', useCase: 'Voltage dividers' },
+      { value: 1000000, bands: ['Brown', 'Black', 'Green', 'Gold'], label: '1 MOhm', useCase: 'High impedance inputs' }
+    ];
+
+    // ==================== STATE ====================
+    const state = {
+      currentView: 'learn',
+      learn: {
+        band1: 'Brown',
+        band2: 'Black',
+        multiplier: 'Red',
+        tolerance: 'Gold'
+      },
+      practice: {
+        resistor: null,
+        guess: '',
+        feedback: null,
+        streak: 0,
+        attempts: [],
+        digitHintLevel: 0,
+        viewingTolerance: false,
+        showChart: false
+      },
+      upload: {
+        file: null,
+        preview: null,
+        isDragging: false
+      }
+    };
+
+    // ==================== UTILITY FUNCTIONS ====================
+    function calculateResistance(band1, band2, multiplier) {
+      const val1 = COLOR_CODES[band1].value;
+      const val2 = COLOR_CODES[band2].value;
+      const mult = COLOR_CODES[multiplier].multiplier;
+      let rawValue = (val1 * 10 + val2) * mult;
+      if (mult < 1) {
+        rawValue = parseFloat(rawValue.toFixed(2));
+      }
+      return rawValue;
+    }
+
+    function formatValue(val) {
+      if (val >= 1000000) return `${val / 1000000}M`;
+      if (val >= 1000) return `${val / 1000}k`;
+      return val.toString();
+    }
+
+    function formatMultiplier(m) {
+      if (m >= 1000000) return `x${m / 1000000}M`;
+      if (m >= 1000) return `x${m / 1000}k`;
+      return `x${m}`;
+    }
+
+    function generateRandomResistor() {
+      const band1 = VALID_FIRST_BAND_COLORS[Math.floor(Math.random() * VALID_FIRST_BAND_COLORS.length)];
+      const band2 = VALID_DIGIT_COLORS[Math.floor(Math.random() * VALID_DIGIT_COLORS.length)];
+      const multiplier = VALID_MULTIPLIER_COLORS[Math.floor(Math.random() * VALID_MULTIPLIER_COLORS.length)];
+      const tolerance = VALID_TOLERANCE_COLORS[Math.floor(Math.random() * VALID_TOLERANCE_COLORS.length)];
+
+      return {
+        band1,
+        band2,
+        multiplier,
+        tolerance,
+        value: calculateResistance(band1, band2, multiplier)
+      };
+    }
+
+    // ==================== SVG GENERATION ====================
+    function getResistorSVG(resistor, options = {}) {
+      const { currentRevealStage = 0, mini = false } = options;
+
+      const getHex = (color) => COLOR_CODES[color].hex;
+
+      const getBandSVG = (color, x, label) => `
+        <g>
+          <rect x="${x}" y="30" width="15" height="60" fill="${getHex(color)}" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
+          <rect x="${x}" y="30" width="15" height="20" fill="white" fill-opacity="0.15" pointer-events="none"/>
+          <rect x="${x}" y="80" width="15" height="10" fill="black" fill-opacity="0.1" pointer-events="none"/>
+          <title>${color} (${label})</title>
+        </g>
+      `;
+
+      let arrowSVG = '';
+      if (currentRevealStage > 0) {
+        let arrowConfig = null;
+        switch (currentRevealStage) {
+          case 1:
+            arrowConfig = { x: 117.5, val: COLOR_CODES[resistor.band1].value, color: getHex(resistor.band1) };
+            break;
+          case 2:
+            arrowConfig = { x: 157.5, val: COLOR_CODES[resistor.band2].value, color: getHex(resistor.band2) };
+            break;
+          case 3:
+            arrowConfig = { x: 197.5, val: formatMultiplier(COLOR_CODES[resistor.multiplier].multiplier), color: getHex(resistor.multiplier) };
+            break;
+          case 4:
+            arrowConfig = { x: 287.5, val: `+/-${COLOR_CODES[resistor.tolerance].tolerance}%`, color: getHex(resistor.tolerance) };
+            break;
+        }
+        if (arrowConfig) {
+          arrowSVG = `
+            <g>
+              <text x="${arrowConfig.x}" y="5" text-anchor="middle" font-family="monospace" font-weight="bold" font-size="24" fill="${arrowConfig.color}" style="filter: drop-shadow(0 1px 1px rgba(0,0,0,0.5))">
+                ${arrowConfig.val}
+              </text>
+              <path d="M ${arrowConfig.x} 28 L ${arrowConfig.x - 8} 12 L ${arrowConfig.x + 8} 12 Z" fill="${arrowConfig.color}" stroke="white" stroke-width="1"/>
+            </g>
+          `;
+        }
+      }
+
+      const containerClass = mini ? 'mini-svg' : 'resistor-svg-container';
+
+      return `
+        <div class="${containerClass}">
+          <svg viewBox="0 -50 400 180" class="resistor-svg">
+            <defs>
+              <linearGradient id="wireGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#9ca3af"/>
+                <stop offset="50%" stop-color="#d1d5db"/>
+                <stop offset="100%" stop-color="#6b7280"/>
+              </linearGradient>
+              <linearGradient id="bodyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#fcd34d"/>
+                <stop offset="50%" stop-color="#fffbeb"/>
+                <stop offset="100%" stop-color="#d97706"/>
+              </linearGradient>
+            </defs>
+
+            <!-- Wires -->
+            <rect x="0" y="55" width="80" height="10" fill="url(#wireGradient)"/>
+            <rect x="320" y="55" width="80" height="10" fill="url(#wireGradient)"/>
+
+            <!-- Body -->
+            <path d="M 80,40 Q 80,30 90,30 L 310,30 Q 320,30 320,40 L 320,80 Q 320,90 310,90 L 90,90 Q 80,90 80,80 Z" fill="#e5e7eb" stroke="#d1d5db" stroke-width="2"/>
+            <path d="M 80,40 Q 80,30 90,30 L 310,30 Q 320,30 320,40 L 320,80 Q 320,90 310,90 L 90,90 Q 80,90 80,80 Z" fill="url(#bodyGradient)" fill-opacity="0.8"/>
+
+            <!-- Bands -->
+            ${getBandSVG(resistor.band1, 110, COLOR_CODES[resistor.band1].value)}
+            ${getBandSVG(resistor.band2, 150, COLOR_CODES[resistor.band2].value)}
+            ${getBandSVG(resistor.multiplier, 190, 'x' + COLOR_CODES[resistor.multiplier].multiplier)}
+            ${getBandSVG(resistor.tolerance, 280, '+/-' + COLOR_CODES[resistor.tolerance].tolerance + '%')}
+
+            ${arrowSVG}
+          </svg>
+        </div>
+      `;
+    }
+
+    // ==================== RENDERING FUNCTIONS ====================
+    function renderNavigation() {
+      const navbar = document.getElementById('navbar');
+      const getActiveClass = (view) => {
+        if (state.currentView === view) {
+          return view === 'learn' ? 'active-learn' : `active-${view}`;
+        }
+        return '';
+      };
+
+      navbar.innerHTML = `
+        <div class="nav-container">
+          <div class="nav-brand">
+            <span class="nav-brand-icon">&#9889;</span>
+            <span>Resistor Laboratory</span>
+          </div>
+          <div class="nav-tabs">
+            <button class="nav-tab ${getActiveClass('learn')}" data-view="learn">Learn</button>
+            <button class="nav-tab ${getActiveClass('practice')}" data-view="practice">Practice</button>
+            <button class="nav-tab ${getActiveClass('upload')}" data-view="upload">Upload</button>
+          </div>
+        </div>
+      `;
+
+      // Add event listeners
+      navbar.querySelectorAll('[data-view]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.currentView = btn.dataset.view;
+          renderNavigation();
+          renderCurrentView();
+        });
+      });
+    }
+
+    function renderCurrentView() {
+      switch (state.currentView) {
+        case 'learn':
+          renderLearnMode();
+          break;
+        case 'practice':
+          renderPracticeMode();
+          break;
+        case 'upload':
+          renderUploadMode();
+          break;
+      }
+    }
+
+    function renderLearnMode() {
+      const main = document.getElementById('main-content');
+      const { band1, band2, multiplier, tolerance } = state.learn;
+      const resistor = {
+        band1,
+        band2,
+        multiplier,
+        tolerance,
+        value: calculateResistance(band1, band2, multiplier)
+      };
+
+      const val1 = COLOR_CODES[band1].value;
+      const val2 = COLOR_CODES[band2].value;
+      const multVal = COLOR_CODES[multiplier].multiplier;
+
+      const getSelectOptions = (colors, type) => {
+        return colors.map(color => {
+          const code = COLOR_CODES[color];
+          let txt = '';
+          if (type === 'digit') txt = code.value;
+          if (type === 'multiplier') txt = `x${code.multiplier}`;
+          if (type === 'tolerance') txt = `+/-${code.tolerance}%`;
+          return `<option value="${color}">${color} (${txt})</option>`;
+        }).join('');
+      };
+
+      main.innerHTML = `
+        <div class="container animate-fade-in pb-20">
+          <div class="section-header">
+            <h2>Learn how to calculate the resistance</h2>
+            <p>Change the bands to see how the resistance changes.</p>
+          </div>
+
+          <div class="card" style="display: flex; flex-direction: column; align-items: center;">
+            <div class="card-gradient-top gradient-green"></div>
+            ${getResistorSVG(resistor)}
+            <div class="resistance-display">
+              ${formatValue(resistor.value)}&#8486; <span class="tolerance">+/-${COLOR_CODES[tolerance].tolerance}%</span>
+            </div>
+          </div>
+
+          <div class="controls-grid">
+            <div class="select-control">
+              <label>Band 1 (Tens)</label>
+              <select id="band1-select">${getSelectOptions(VALID_FIRST_BAND_COLORS, 'digit')}</select>
+            </div>
+            <div class="select-control">
+              <label>Band 2 (Ones)</label>
+              <select id="band2-select">${getSelectOptions(VALID_DIGIT_COLORS, 'digit')}</select>
+            </div>
+            <div class="select-control">
+              <label>Multiplier</label>
+              <select id="multiplier-select">${getSelectOptions(VALID_MULTIPLIER_COLORS, 'multiplier')}</select>
+            </div>
+            <div class="select-control">
+              <label>Tolerance</label>
+              <select id="tolerance-select">${getSelectOptions(VALID_TOLERANCE_COLORS, 'tolerance')}</select>
+            </div>
+          </div>
+
+          <div class="explanation-box">
+            <h3><span class="icon">&#128208;</span> How it works</h3>
+            <div class="explanation-step">
+              <div class="step-number">1</div>
+              <div class="step-content">
+                <p>Combine the digits</p>
+                <p class="detail">Take the digit from <strong style="color: ${COLOR_CODES[band1].hex}">${band1} (${val1})</strong> and <strong style="color: ${COLOR_CODES[band2].hex}">${band2} (${val2})</strong> to make the number <strong>${val1}${val2}</strong>.</p>
+              </div>
+            </div>
+            <div class="explanation-step">
+              <div class="step-number">2</div>
+              <div class="step-content">
+                <p>Apply the Multiplier</p>
+                <p class="detail">Multiply <strong>${val1}${val2}</strong> by <strong style="color: ${COLOR_CODES[multiplier].hex}">${multiplier} (x${multVal})</strong>.</p>
+                <span class="formula">${val1}${val2} x ${multVal} = ${resistor.value}&#8486;</span>
+              </div>
+            </div>
+            <div class="explanation-step">
+              <div class="step-number">3</div>
+              <div class="step-content">
+                <p>Check Tolerance</p>
+                <p class="detail">The <strong style="color: ${COLOR_CODES[tolerance].hex}">${tolerance}</strong> band means the actual value can vary by <strong>+/-${COLOR_CODES[tolerance].tolerance}%</strong>.</p>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="common-resistors-header">
+              Common Resistors
+              <span>Click one to load it into the lab</span>
+            </h3>
+            <div class="resistors-grid">
+              ${COMMON_RESISTORS.map((item, idx) => {
+                const miniResistor = {
+                  band1: item.bands[0],
+                  band2: item.bands[1],
+                  multiplier: item.bands[2],
+                  tolerance: item.bands[3],
+                  value: item.value
+                };
+                return `
+                  <button class="resistor-preset" data-preset-index="${idx}">
+                    <div>
+                      <div class="label">${item.label}</div>
+                      <div class="use-case">${item.useCase}</div>
+                      <div class="color-dots">
+                        <span class="color-dot" style="background-color: ${COLOR_CODES[item.bands[0]].hex}"></span>
+                        <span class="color-dot" style="background-color: ${COLOR_CODES[item.bands[1]].hex}"></span>
+                        <span class="color-dot" style="background-color: ${COLOR_CODES[item.bands[2]].hex}"></span>
+                      </div>
+                    </div>
+                    ${getResistorSVG(miniResistor, { mini: true })}
+                  </button>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Set current values
+      document.getElementById('band1-select').value = band1;
+      document.getElementById('band2-select').value = band2;
+      document.getElementById('multiplier-select').value = multiplier;
+      document.getElementById('tolerance-select').value = tolerance;
+
+      // Add event listeners
+      document.getElementById('band1-select').addEventListener('change', (e) => {
+        state.learn.band1 = e.target.value;
+        renderLearnMode();
+      });
+      document.getElementById('band2-select').addEventListener('change', (e) => {
+        state.learn.band2 = e.target.value;
+        renderLearnMode();
+      });
+      document.getElementById('multiplier-select').addEventListener('change', (e) => {
+        state.learn.multiplier = e.target.value;
+        renderLearnMode();
+      });
+      document.getElementById('tolerance-select').addEventListener('change', (e) => {
+        state.learn.tolerance = e.target.value;
+        renderLearnMode();
+      });
+
+      // Preset buttons
+      document.querySelectorAll('[data-preset-index]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = parseInt(btn.dataset.presetIndex);
+          const preset = COMMON_RESISTORS[idx];
+          state.learn.band1 = preset.bands[0];
+          state.learn.band2 = preset.bands[1];
+          state.learn.multiplier = preset.bands[2];
+          state.learn.tolerance = preset.bands[3];
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          renderLearnMode();
+        });
+      });
+    }
+
+    function renderPracticeMode() {
+      const main = document.getElementById('main-content');
+
+      // Generate resistor if none exists
+      if (!state.practice.resistor) {
+        state.practice.resistor = generateRandomResistor();
+      }
+
+      const { resistor, guess, feedback, streak, attempts, digitHintLevel, viewingTolerance } = state.practice;
+      const currentRevealStage = viewingTolerance ? 4 : digitHintLevel;
+      const correctCount = attempts.filter(a => a.isCorrect).length;
+
+      let hintIndicatorsHTML = '';
+      if (digitHintLevel > 0 || viewingTolerance) {
+        hintIndicatorsHTML = '<div class="hint-indicators">';
+        if (digitHintLevel >= 1) hintIndicatorsHTML += `<span class="hint-indicator">Band 1: ${COLOR_CODES[resistor.band1].value}</span>`;
+        if (digitHintLevel >= 2) hintIndicatorsHTML += `<span class="hint-indicator">Band 2: ${COLOR_CODES[resistor.band2].value}</span>`;
+        if (digitHintLevel >= 3) hintIndicatorsHTML += `<span class="hint-indicator">Mult: x${COLOR_CODES[resistor.multiplier].multiplier}</span>`;
+        if (viewingTolerance) hintIndicatorsHTML += `<span class="hint-indicator tolerance">Tol: +/-${COLOR_CODES[resistor.tolerance].tolerance}%</span>`;
+        hintIndicatorsHTML += '</div>';
+      }
+
+      let inputAreaHTML = '';
+      if (feedback === 'correct') {
+        inputAreaHTML = `
+          <div class="feedback-correct animate-pulse">
+            <h2>Correct! &#127881;</h2>
+            <p>The value was indeed ${resistor.value} Ohms.</p>
+            <button class="btn-dark" id="next-btn">Next Resistor &#8594;</button>
+          </div>
+        `;
+      } else {
+        inputAreaHTML = `
+          <form id="guess-form">
+            <label>Enter Resistance Value (Ohms)</label>
+            <div class="input-row">
+              <input type="number" step="any" class="input-field" placeholder="e.g. 4700" id="guess-input" value="${guess}" autofocus>
+              <button type="submit" class="btn btn-primary" ${!guess ? 'disabled' : ''}>Check</button>
+            </div>
+            ${feedback === 'incorrect' ? '<div class="feedback-incorrect"><span>Not quite! Try again.</span></div>' : ''}
+          </form>
+        `;
+      }
+
+      main.innerHTML = `
+        <div class="container animate-fade-in">
+          <div class="practice-header">
+            <div>
+              <h2>Practice Mode</h2>
+              <p>Decide the value. Defeat the circuit.</p>
+            </div>
+            <div class="stats-container">
+              <div class="stat-box">
+                <span class="stat-label">Streak</span>
+                <span class="stat-value streak">&#128293; ${streak}</span>
+              </div>
+              <div class="stat-box">
+                <span class="stat-label">Score</span>
+                <span class="stat-value score">${correctCount}/${attempts.length}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="display: flex; flex-direction: column; align-items: center;">
+            <div class="card-gradient-top gradient-blue"></div>
+            <div style="width: 100%;">
+              ${getResistorSVG(resistor, { currentRevealStage })}
+            </div>
+            ${hintIndicatorsHTML}
+          </div>
+
+          <div class="practice-grid">
+            <div class="input-card">
+              ${inputAreaHTML}
+            </div>
+
+            <div class="toolkit-card">
+              <h3>Student Toolkit</h3>
+              <button class="btn-hint btn-hint-amber" id="reveal-band-btn" ${(digitHintLevel >= 3 || feedback === 'correct') ? 'disabled' : ''}>
+                <span>&#128161;</span> Reveal a band
+              </button>
+              <button class="btn-hint btn-hint-orange" id="reveal-tolerance-btn" ${(viewingTolerance || feedback === 'correct') ? 'disabled' : ''}>
+                <span>&#10024;</span> Reveal Tolerance
+              </button>
+              <button class="btn-hint btn-hint-slate" id="show-chart-btn">
+                <span>&#128202;</span> Cheat Sheet
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Event listeners
+      const form = document.getElementById('guess-form');
+      if (form) {
+        const input = document.getElementById('guess-input');
+        const submitBtn = form.querySelector('button[type="submit"]');
+
+        input.addEventListener('input', (e) => {
+          state.practice.guess = e.target.value;
+          submitBtn.disabled = !e.target.value;
+        });
+
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const numericGuess = parseFloat(state.practice.guess);
+          if (isNaN(numericGuess)) return;
+
+          const isCorrect = numericGuess === resistor.value;
+          state.practice.attempts.push({
+            timestamp: Date.now(),
+            isCorrect,
+            userGuess: numericGuess,
+            actualValue: resistor.value
+          });
+          state.practice.feedback = isCorrect ? 'correct' : 'incorrect';
+          state.practice.streak = isCorrect ? state.practice.streak + 1 : 0;
+          renderPracticeMode();
+        });
+      }
+
+      const nextBtn = document.getElementById('next-btn');
+      if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+          state.practice.resistor = generateRandomResistor();
+          state.practice.guess = '';
+          state.practice.feedback = null;
+          state.practice.digitHintLevel = 0;
+          state.practice.viewingTolerance = false;
+          renderPracticeMode();
+        });
+      }
+
+      document.getElementById('reveal-band-btn').addEventListener('click', () => {
+        state.practice.digitHintLevel = Math.min(state.practice.digitHintLevel + 1, 3);
+        state.practice.viewingTolerance = false;
+        renderPracticeMode();
+      });
+
+      document.getElementById('reveal-tolerance-btn').addEventListener('click', () => {
+        state.practice.viewingTolerance = true;
+        renderPracticeMode();
+      });
+
+      document.getElementById('show-chart-btn').addEventListener('click', () => {
+        state.practice.showChart = true;
+        renderColorChartModal();
+      });
+
+      // Render modal if open
+      if (state.practice.showChart) {
+        renderColorChartModal();
+      }
+    }
+
+    function renderUploadMode() {
+      const main = document.getElementById('main-content');
+      const { file, preview, isDragging } = state.upload;
+
+      let contentHTML = '';
+      if (!file) {
+        contentHTML = `
+          <div class="drop-zone ${isDragging ? 'dragging' : ''}" id="drop-zone">
+            <div class="drop-zone-icon">&#128247;</div>
+            <p class="drop-zone-text">
+              <strong>Drag and drop</strong> an image of a resistor here
+            </p>
+            <p class="drop-zone-hint">or click to browse files</p>
+            <input type="file" accept="image/*" class="hidden" id="file-upload">
+            <label for="file-upload" class="file-input-label">Choose File</label>
+          </div>
+        `;
+      } else {
+        contentHTML = `
+          <div class="preview-container">
+            <img src="${preview}" alt="Uploaded resistor" class="preview-image">
+            <div class="preview-actions">
+              <button class="btn-remove" id="remove-file">Remove Image</button>
+            </div>
+          </div>
+        `;
+      }
+
+      main.innerHTML = `
+        <div class="container animate-fade-in">
+          <div class="section-header">
+            <h2>Upload Resistor Image</h2>
+            <p>Upload a photo of a resistor to analyze its colors and calculate its resistance value.</p>
+          </div>
+
+          <div class="card" style="display: flex; flex-direction: column; align-items: center;">
+            <div class="card-gradient-top gradient-yellow"></div>
+            ${contentHTML}
+          </div>
+        </div>
+      `;
+
+      // Event listeners
+      if (!file) {
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-upload');
+
+        dropZone.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          state.upload.isDragging = true;
+          dropZone.classList.add('dragging');
+        });
+
+        dropZone.addEventListener('dragleave', (e) => {
+          e.preventDefault();
+          state.upload.isDragging = false;
+          dropZone.classList.remove('dragging');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+          e.preventDefault();
+          state.upload.isDragging = false;
+          const droppedFile = e.dataTransfer.files[0];
+          if (droppedFile && droppedFile.type.startsWith('image/')) {
+            state.upload.file = droppedFile;
+            state.upload.preview = URL.createObjectURL(droppedFile);
+            renderUploadMode();
+          }
+        });
+
+        dropZone.addEventListener('click', (e) => {
+          if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'LABEL') {
+            fileInput.click();
+          }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+          const selectedFile = e.target.files[0];
+          if (selectedFile && selectedFile.type.startsWith('image/')) {
+            state.upload.file = selectedFile;
+            state.upload.preview = URL.createObjectURL(selectedFile);
+            renderUploadMode();
+          }
+        });
+      } else {
+        document.getElementById('remove-file').addEventListener('click', () => {
+          if (state.upload.preview) {
+            URL.revokeObjectURL(state.upload.preview);
+          }
+          state.upload.file = null;
+          state.upload.preview = null;
+          renderUploadMode();
+        });
+      }
+    }
+
+    function renderColorChartModal() {
+      const modalContainer = document.getElementById('modal-container');
+
+      if (!state.practice.showChart) {
+        modalContainer.innerHTML = '';
+        return;
+      }
+
+      const colorRows = Object.entries(COLOR_CODES).map(([color, data]) => `
+        <tr>
+          <td class="color-cell">
+            <span class="color-swatch" style="background-color: ${data.hex}"></span>
+            ${color}
+          </td>
+          <td>${data.value !== undefined ? data.value : '-'}</td>
+          <td>${data.multiplier ? 'x ' + data.multiplier.toLocaleString() : '-'}</td>
+          <td>${data.tolerance ? '+/-' + data.tolerance + '%' : '-'}</td>
+        </tr>
+      `).join('');
+
+      modalContainer.innerHTML = `
+        <div class="modal-overlay" id="modal-overlay">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h2>Resistor Color Code Reference</h2>
+              <button class="modal-close" id="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+              <table class="color-table">
+                <thead>
+                  <tr>
+                    <th>Color</th>
+                    <th>Digit</th>
+                    <th>Multiplier</th>
+                    <th>Tolerance</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${colorRows}
+                </tbody>
+              </table>
+              <div class="modal-info">
+                <h3>How to calculate:</h3>
+                <p><strong>(Band 1 Band 2) x Multiplier</strong></p>
+                <p class="example">Example: Red (2), Red (2), Brown (x10) = 22 x 10 = 220 Ohms.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Close handlers
+      document.getElementById('modal-close').addEventListener('click', closeModal);
+      document.getElementById('modal-overlay').addEventListener('click', (e) => {
+        if (e.target.id === 'modal-overlay') closeModal();
+      });
+    }
+
+    function closeModal() {
+      state.practice.showChart = false;
+      document.getElementById('modal-container').innerHTML = '';
+    }
+
+    // ==================== INITIALIZATION ====================
+    function init() {
+      renderNavigation();
+      renderCurrentView();
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 # Description
-General purpose tools that I've built and found useful. Coming Soon.
+General purpose tools that I've built and found useful. Coming Soon. Inspired by [Useful pattenrs for building HTML tools](https://simonwillison.net/2025/Dec/10/html-tools/)
 
 # Tools
 - [Resistor Laboratory](https://tools.jasonvan.com/resistor-laboratory)

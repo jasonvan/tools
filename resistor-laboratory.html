@@ -228,6 +228,77 @@
       border-color: #3b82f6;
     }
 
+    /* Split input container */
+    .split-input {
+      display: flex;
+      gap: 1rem;
+      align-items: stretch;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+
+    @media (max-width: 640px) {
+      .split-input {
+        flex-direction: column;
+      }
+    }
+
+    /* Number input portion */
+    .split-number {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    /* Unit selector radio group */
+    .unit-selector-radio {
+      display: flex;
+      gap: 0.75rem;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .radio-label {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem 1.5rem;
+      border-radius: 0.5rem;
+      border: 2px solid #e2e8f0;
+      background-color: #f8fafc;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      min-width: 3.5rem;
+    }
+
+    .radio-label:hover {
+      border-color: #cbd5e1;
+      background-color: #f1f5f9;
+    }
+
+    .unit-radio {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .unit-radio:checked + .radio-text {
+      font-weight: bold;
+    }
+
+    .radio-label:has(.unit-radio:checked) {
+      background-color: #3b82f6;
+      border-color: #2563eb;
+      color: white;
+    }
+
+    .radio-text {
+      font-size: 1.25rem;
+      font-weight: 600;
+      font-family: monospace;
+    }
+
     .btn {
       padding: 1rem 2rem;
       border-radius: 0.5rem;
@@ -600,6 +671,7 @@
       padding: 0.25rem 0.5rem;
       border-radius: 0.25rem;
       border: 1px solid #e2e8f0;
+      font-size: 0.75rem;
     }
 
     .hint-indicator.tolerance {
@@ -634,6 +706,11 @@
       color: #64748b;
       text-transform: uppercase;
       letter-spacing: 0.05em;
+    }
+
+    .input-card .btn-primary {
+      width: 100%;
+      margin-top: 1.5rem;
     }
 
     .input-row {
@@ -925,15 +1002,6 @@
     }
 
     /* ==================== ANIMATIONS ==================== */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .animate-fade-in {
-      animation: fadeIn 0.3s ease-out;
-    }
-
     @keyframes pulse {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.7; }
@@ -1219,7 +1287,7 @@
       };
 
       main.innerHTML = `
-        <div class="container animate-fade-in pb-20">
+        <div class="container pb-20">
           <div class="section-header">
             <h2>Learn how to calculate the resistance</h2>
             <p>Change the bands to see how the resistance changes.</p>
@@ -1366,10 +1434,10 @@
       let hintIndicatorsHTML = '';
       if (digitHintLevel > 0 || viewingTolerance) {
         hintIndicatorsHTML = '<div class="hint-indicators">';
-        if (digitHintLevel >= 1) hintIndicatorsHTML += `<span class="hint-indicator">Band 1: ${COLOR_CODES[resistor.band1].value}</span>`;
-        if (digitHintLevel >= 2) hintIndicatorsHTML += `<span class="hint-indicator">Band 2: ${COLOR_CODES[resistor.band2].value}</span>`;
-        if (digitHintLevel >= 3) hintIndicatorsHTML += `<span class="hint-indicator">Mult: x${COLOR_CODES[resistor.multiplier].multiplier}</span>`;
-        if (viewingTolerance) hintIndicatorsHTML += `<span class="hint-indicator tolerance">Tol: +/-${COLOR_CODES[resistor.tolerance].tolerance}%</span>`;
+        if (digitHintLevel >= 1) hintIndicatorsHTML += `<span class="hint-indicator">Band 1 (TENS): ${COLOR_CODES[resistor.band1].value}</span>`;
+        if (digitHintLevel >= 2) hintIndicatorsHTML += `<span class="hint-indicator">Band 2 (ONES): ${COLOR_CODES[resistor.band2].value}</span>`;
+        if (digitHintLevel >= 3) hintIndicatorsHTML += `<span class="hint-indicator">Multiplier: x${COLOR_CODES[resistor.multiplier].multiplier}</span>`;
+        if (viewingTolerance) hintIndicatorsHTML += `<span class="hint-indicator tolerance">Tolerance: +/-${COLOR_CODES[resistor.tolerance].tolerance}%</span>`;
         hintIndicatorsHTML += '</div>';
       }
 
@@ -1385,18 +1453,33 @@
       } else {
         inputAreaHTML = `
           <form id="guess-form">
-            <label>Enter Resistance Value (Ohms)</label>
-            <div class="input-row">
-              <input type="number" step="any" class="input-field" placeholder="e.g. 4700" id="guess-input" value="${guess}" autofocus>
-              <button type="submit" class="btn btn-primary" ${!guess ? 'disabled' : ''}>Check</button>
+            <label>Enter Resistance Value</label>
+            <div class="split-input">
+              <input type="number" step="0.01" min="0.01" class="input-field split-number"
+                     placeholder="4.7" id="guess-number" autofocus>
+              <div class="unit-selector-radio">
+                <label class="radio-label">
+                  <input type="radio" name="unit" value="1" class="unit-radio" checked>
+                  <span class="radio-text">Ω</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="unit" value="1000" class="unit-radio">
+                  <span class="radio-text">kΩ</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="unit" value="1000000" class="unit-radio">
+                  <span class="radio-text">MΩ</span>
+                </label>
+              </div>
             </div>
+            <button type="submit" class="btn btn-primary" ${!guess ? 'disabled' : ''}>Check</button>
             ${feedback === 'incorrect' ? '<div class="feedback-incorrect"><span>Not quite! Try again.</span></div>' : ''}
           </form>
         `;
       }
 
       main.innerHTML = `
-        <div class="container animate-fade-in">
+        <div class="container">
           <div class="practice-header">
             <div>
               <h2>Practice Mode</h2>
@@ -1446,12 +1529,31 @@
       // Event listeners
       const form = document.getElementById('guess-form');
       if (form) {
-        const input = document.getElementById('guess-input');
+        const numberInput = document.getElementById('guess-number');
+        const unitRadios = document.querySelectorAll('.unit-radio');
         const submitBtn = form.querySelector('button[type="submit"]');
 
-        input.addEventListener('input', (e) => {
-          state.practice.guess = e.target.value;
-          submitBtn.disabled = !e.target.value;
+        // Helper function to update guess value
+        const updateGuess = () => {
+          const baseNumber = parseFloat(numberInput.value);
+          const checkedRadio = document.querySelector('.unit-radio:checked');
+          const multiplier = parseFloat(checkedRadio.value);
+
+          if (!isNaN(baseNumber) && baseNumber > 0) {
+            state.practice.guess = (baseNumber * multiplier).toString();
+            submitBtn.disabled = false;
+          } else {
+            state.practice.guess = '';
+            submitBtn.disabled = true;
+          }
+        };
+
+        // Update on number input change
+        numberInput.addEventListener('input', updateGuess);
+
+        // Update on unit radio change
+        unitRadios.forEach(radio => {
+          radio.addEventListener('change', updateGuess);
         });
 
         form.addEventListener('submit', (e) => {
@@ -1535,7 +1637,7 @@
       }
 
       main.innerHTML = `
-        <div class="container animate-fade-in">
+        <div class="container">
           <div class="section-header">
             <h2>Upload Resistor Image</h2>
             <p>Upload a photo of a resistor to analyze its colors and calculate its resistance value.</p>

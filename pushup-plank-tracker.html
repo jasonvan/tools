@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pushup & Plank Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    /* ==================== CSS VARIABLES ==================== */
+    :root {
+      --primary-orange: #ff6b35;
+      --orange-light: #ff9f68;
+      --orange-glow: rgba(255, 107, 53, 0.15);
+      --success-green: #4caf50;
+      --green-glow: rgba(76, 175, 80, 0.15);
+      --dark-text: #1a1a1a;
+      --medium-text: #4a5568;
+      --light-text: #718096;
+      --bg-light: #f8f9fa;
+      --bg-white: #ffffff;
+      --border-color: #e2e8f0;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12);
+
+      --font-display: 'Outfit', sans-serif;
+      --font-body: 'Outfit', sans-serif;
+    }
+
+    /* ==================== CSS RESET & BASE ==================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      font-family: var(--font-body);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(to bottom, #f8f9fa 0%, #e9ecef 100%);
+      color: var(--dark-text);
+    }
+
+    /* ==================== NAVIGATION ==================== */
+    .nav {
+      background: var(--bg-white);
+      border-bottom: 3px solid var(--primary-orange);
+      box-shadow: var(--shadow-md);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .nav-icon {
+      font-size: 2rem;
+    }
+
+    .nav-brand-content h1 {
+      font-family: var(--font-display);
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--dark-text);
+      line-height: 1;
+    }
+
+    .nav-tagline {
+      font-size: 0.8rem;
+      color: var(--light-text);
+      font-weight: 400;
+      margin-top: 0.15rem;
+    }
+
+    /* ==================== MAIN CONTENT ==================== */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    /* ==================== CARDS ==================== */
+    .card {
+      background: var(--bg-white);
+      border-radius: 16px;
+      box-shadow: var(--shadow-md);
+      padding: 2rem;
+      margin-bottom: 2rem;
+      border: 1px solid var(--border-color);
+    }
+
+    .card-header {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--bg-light);
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--dark-text);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* ==================== TODAY'S TRACKER ==================== */
+    .tracker-section {
+      margin-bottom: 3rem;
+    }
+
+    .tracker-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .section-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--light-text);
+      margin-bottom: 1rem;
+    }
+
+    .counter-display {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .counter-number {
+      font-family: var(--font-display);
+      font-size: 6rem;
+      font-weight: 800;
+      line-height: 1;
+      color: var(--primary-orange);
+      text-shadow: 0 2px 8px var(--orange-glow);
+      animation: numberPop 0.3s ease-out;
+    }
+
+    @keyframes numberPop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    .counter-label {
+      font-size: 0.875rem;
+      color: var(--medium-text);
+      margin-top: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      font-family: var(--font-body);
+      font-weight: 600;
+      padding: 0.875rem 1.5rem;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      min-width: 60px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn:active {
+      transform: scale(0.95);
+    }
+
+    .btn-primary {
+      background: var(--primary-orange);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #ff5722;
+      box-shadow: 0 4px 12px var(--orange-glow);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background: var(--bg-light);
+      color: var(--dark-text);
+    }
+
+    .btn-secondary:hover {
+      background: #dee2e6;
+      transform: translateY(-2px);
+    }
+
+    .btn-success {
+      background: var(--success-green);
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #43a047;
+      box-shadow: 0 4px 12px var(--green-glow);
+      transform: translateY(-2px);
+    }
+
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #dc2626;
+      transform: translateY(-2px);
+    }
+
+    .btn-large {
+      padding: 1.25rem 2.5rem;
+      font-size: 1.125rem;
+      min-width: 140px;
+    }
+
+    .progress-container {
+      margin-top: 1.5rem;
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    .progress-label {
+      color: var(--medium-text);
+      font-weight: 500;
+    }
+
+    .progress-value {
+      color: var(--primary-orange);
+      font-weight: 700;
+    }
+
+    .progress-bar-track {
+      height: 12px;
+      background: var(--bg-light);
+      border-radius: 99px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary-orange) 0%, var(--orange-light) 100%);
+      border-radius: 99px;
+      transition: width 0.5s ease-out;
+      position: relative;
+      box-shadow: 0 0 10px var(--orange-glow);
+    }
+
+    .progress-bar-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .timer-display {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .timer-number {
+      font-family: var(--font-display);
+      font-size: 4.5rem;
+      font-weight: 800;
+      line-height: 1;
+      color: var(--dark-text);
+      letter-spacing: 0.05em;
+    }
+
+    .timer-number.active {
+      color: var(--primary-orange);
+      animation: timerPulse 1s ease-in-out infinite;
+    }
+
+    @keyframes timerPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    .timer-target {
+      font-size: 0.875rem;
+      color: var(--medium-text);
+      margin-top: 0.5rem;
+    }
+
+    .timer-controls {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* ==================== PROGRESS DASHBOARD ==================== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-box {
+      background: var(--bg-light);
+      padding: 1.5rem;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-family: var(--font-display);
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--primary-orange);
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--medium-text);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .streak-box {
+      background: linear-gradient(135deg, var(--primary-orange) 0%, var(--orange-light) 100%);
+      color: white;
+      box-shadow: 0 4px 12px var(--orange-glow);
+    }
+
+    .streak-box .stat-value {
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .streak-box .stat-label {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    /* ==================== HISTORY ==================== */
+    .history-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    @media (min-width: 640px) {
+      .history-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .history-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    .day-card {
+      background: var(--bg-light);
+      padding: 1rem;
+      border-radius: 12px;
+      border: 2px solid transparent;
+      transition: all 0.2s ease;
+    }
+
+    .day-card:hover {
+      border-color: var(--primary-orange);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .day-card.rest-day {
+      opacity: 0.6;
+    }
+
+    .day-date {
+      font-size: 0.75rem;
+      color: var(--light-text);
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+
+    .day-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .day-stat {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .day-stat-label {
+      font-size: 0.875rem;
+      color: var(--medium-text);
+    }
+
+    .day-stat-value {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--dark-text);
+    }
+
+    .badge {
+      display: inline-block;
+      background: var(--success-green);
+      color: white;
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      margin-left: 0.5rem;
+    }
+
+    /* ==================== INFO CARD ==================== */
+    .info-content {
+      color: var(--medium-text);
+      line-height: 1.8;
+    }
+
+    .info-content h3 {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--dark-text);
+      margin-bottom: 0.75rem;
+      margin-top: 1.5rem;
+    }
+
+    .info-content h3:first-child {
+      margin-top: 0;
+    }
+
+    .info-content ul {
+      padding-left: 1.5rem;
+      margin: 0.75rem 0;
+    }
+
+    .info-content li {
+      margin-bottom: 0.5rem;
+    }
+
+    .reset-section {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 2px solid var(--bg-light);
+      text-align: center;
+    }
+
+    /* ==================== UTILITIES ==================== */
+    .hidden {
+      display: none !important;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .divider {
+      height: 2px;
+      background: var(--bg-light);
+      margin: 2rem 0;
+      border: none;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 640px) {
+      .counter-number {
+        font-size: 4.5rem;
+      }
+
+      .timer-number {
+        font-size: 3.5rem;
+      }
+
+      .btn {
+        padding: 0.75rem 1.25rem;
+        font-size: 0.875rem;
+      }
+
+      .btn-large {
+        padding: 1rem 2rem;
+        font-size: 1rem;
+      }
+
+      .card {
+        padding: 1.5rem;
+      }
+
+      .nav-brand-content h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-container">
+      <div class="nav-brand">
+        <div class="nav-icon">💪</div>
+        <div class="nav-brand-content">
+          <h1>Pushup & Plank Tracker</h1>
+          <div class="nav-tagline">Build strength, track progress</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="container">
+    <!-- Today's Tracker Card -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">📅 Today's Workout</h2>
+      </div>
+
+      <!-- Pushups Section -->
+      <div class="tracker-section">
+        <div class="section-label">Pushups</div>
+        <div class="counter-display">
+          <div class="counter-number" id="pushup-count">0</div>
+          <div class="counter-label">Pushups Today</div>
+        </div>
+        <div class="button-group">
+          <button class="btn btn-secondary" onclick="updatePushups(-1)">-1</button>
+          <button class="btn btn-primary" onclick="updatePushups(1)">+1</button>
+          <button class="btn btn-primary" onclick="updatePushups(5)">+5</button>
+          <button class="btn btn-primary" onclick="updatePushups(10)">+10</button>
+        </div>
+        <div class="progress-container">
+          <div class="progress-info">
+            <span class="progress-label">Today's Goal Progress</span>
+            <span class="progress-value" id="pushup-progress-text">0 / 20</span>
+          </div>
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="pushup-progress-bar" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- Plank Section -->
+      <div class="tracker-section">
+        <div class="section-label">Plank Hold</div>
+        <div class="timer-display">
+          <div class="timer-number" id="plank-timer">00:00.0</div>
+          <div class="timer-target" id="plank-target">Target: 15 seconds</div>
+        </div>
+        <div class="timer-controls">
+          <button class="btn btn-success btn-large" id="start-btn" onclick="startPlankTimer()">Start</button>
+          <button class="btn btn-secondary btn-large hidden" id="pause-btn" onclick="pausePlankTimer()">Pause</button>
+          <button class="btn btn-secondary btn-large hidden" id="resume-btn" onclick="resumePlankTimer()">Resume</button>
+          <button class="btn btn-danger btn-large hidden" id="stop-btn" onclick="stopPlankTimer()">Stop</button>
+        </div>
+        <div class="progress-container">
+          <div class="progress-info">
+            <span class="progress-label">Best Today</span>
+            <span class="progress-value" id="plank-best-text">0.0s</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress Dashboard Card -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">📊 Progress Dashboard</h2>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-box streak-box">
+          <div class="stat-value" id="streak-count">🔥 0</div>
+          <div class="stat-label">Day Streak</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="pushup-avg">0</div>
+          <div class="stat-label">Avg Pushups</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="plank-avg">0s</div>
+          <div class="stat-label">Avg Plank</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="days-to-summer">142</div>
+          <div class="stat-label">Days to Summer</div>
+        </div>
+      </div>
+      <div class="progress-container">
+        <div class="progress-info">
+          <span class="progress-label">Overall Progress to 40 Pushups</span>
+          <span class="progress-value" id="overall-progress-text">0%</span>
+        </div>
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" id="overall-progress-bar" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- History Card -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">📜 Recent History</h2>
+      </div>
+      <div class="history-grid" id="history-grid">
+        <!-- Day cards will be inserted here -->
+        <div class="day-card rest-day">
+          <div class="day-date">Mon, Dec 30</div>
+          <div class="day-stats">
+            <div class="day-stat">
+              <span class="day-stat-label">Pushups</span>
+              <span class="day-stat-value">—</span>
+            </div>
+            <div class="day-stat">
+              <span class="day-stat-label">Plank</span>
+              <span class="day-stat-value">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info Card -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">ℹ️ How to Use</h2>
+      </div>
+      <div class="info-content">
+        <h3>Getting Started</h3>
+        <ul>
+          <li>Track your daily pushups using the counter buttons (+1, +5, +10)</li>
+          <li>Use the plank timer to track your hold time - your best time of the day is saved</li>
+          <li>Your daily pushup goal increases progressively toward 40 by summer (June 21)</li>
+          <li>Plank targets start at 15 seconds and increase by 2 seconds each day</li>
+        </ul>
+
+        <h3>Building Your Streak</h3>
+        <ul>
+          <li>Complete at least one pushup OR one plank hold each day to maintain your streak</li>
+          <li>Your progress is automatically saved to your browser's local storage</li>
+          <li>Check the dashboard to see your averages and progress toward your goal</li>
+        </ul>
+
+        <h3>Privacy</h3>
+        <p>All data is stored locally in your browser. Nothing is sent to any server. If you clear your browser data, your workout history will be lost.</p>
+
+        <div class="reset-section">
+          <button class="btn btn-danger" onclick="resetAllData()">Reset All Data</button>
+          <p style="margin-top: 0.5rem; font-size: 0.875rem; color: var(--light-text);">This will permanently delete all your workout history</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // ==================== CONSTANTS ====================
+    const STORAGE_KEY = 'pushupPlankTracker';
+    const SUMMER_DATE = '2025-06-21';
+
+    // ==================== STATE ====================
+    const state = {
+      settings: {
+        pushupGoal: 40,
+        summerDate: SUMMER_DATE,
+        plankStartDuration: 15,
+        plankIncrementPerDay: 2,
+        startDate: null
+      },
+      today: {
+        date: null,
+        pushups: 0,
+        plankBest: 0,
+        plankTimerActive: false,
+        plankTimerPaused: false,
+        plankTimerStart: null,
+        plankElapsed: 0
+      },
+      history: {}
+    };
+
+    let timerInterval = null;
+
+    // ==================== UTILITY FUNCTIONS ====================
+    function getTodayString() {
+      const today = new Date();
+      return today.toISOString().split('T')[0];
+    }
+
+    function formatDateDisplay(dateStr) {
+      const date = new Date(dateStr + 'T00:00:00');
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return `${days[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()}`;
+    }
+
+    function getDaysDifference(startDate, endDate) {
+      const start = new Date(startDate + 'T00:00:00');
+      const end = new Date(endDate + 'T00:00:00');
+      return Math.floor((end - start) / (1000 * 60 * 60 * 24));
+    }
+
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = (seconds % 60).toFixed(1);
+      return `${String(mins).padStart(2, '0')}:${String(secs).padStart(4, '0')}`;
+    }
+
+    // ==================== STORAGE ====================
+    function loadFromStorage() {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const data = JSON.parse(stored);
+        state.settings = { ...state.settings, ...data.settings };
+        state.history = data.history || {};
+      }
+    }
+
+    function saveToStorage() {
+      const data = {
+        settings: state.settings,
+        history: state.history
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function initializeToday() {
+      const today = getTodayString();
+      state.today.date = today;
+
+      if (!state.settings.startDate) {
+        state.settings.startDate = today;
+        saveToStorage();
+      }
+
+      if (state.history[today]) {
+        state.today.pushups = state.history[today].pushups || 0;
+        state.today.plankBest = state.history[today].plank || 0;
+      } else {
+        state.today.pushups = 0;
+        state.today.plankBest = 0;
+      }
+    }
+
+    // ==================== CALCULATIONS ====================
+    function calculateDailyPushupGoal() {
+      const startDate = state.settings.startDate;
+      const summerDate = state.settings.summerDate;
+      const today = getTodayString();
+
+      const totalDays = getDaysDifference(startDate, summerDate);
+      const currentDay = getDaysDifference(startDate, today);
+
+      if (currentDay < 0) return 0;
+      if (currentDay >= totalDays) return state.settings.pushupGoal;
+
+      return Math.ceil((state.settings.pushupGoal * currentDay) / totalDays);
+    }
+
+    function calculatePlankTarget() {
+      const startDate = state.settings.startDate;
+      const today = getTodayString();
+      const daysFromStart = Math.max(0, getDaysDifference(startDate, today));
+
+      return state.settings.plankStartDuration + (daysFromStart * state.settings.plankIncrementPerDay);
+    }
+
+    function calculateStreak() {
+      const dates = Object.keys(state.history).sort().reverse();
+      let streak = 0;
+      let expectedDate = getTodayString();
+
+      for (const date of dates) {
+        if (date === expectedDate) {
+          const entry = state.history[date];
+          if (entry.pushups > 0 || entry.plank > 0) {
+            streak++;
+            const prevDate = new Date(date + 'T00:00:00');
+            prevDate.setDate(prevDate.getDate() - 1);
+            expectedDate = prevDate.toISOString().split('T')[0];
+          } else {
+            break;
+          }
+        } else {
+          break;
+        }
+      }
+
+      return streak;
+    }
+
+    function calculateAverage(key, days = 7) {
+      const dates = Object.keys(state.history).sort().reverse().slice(0, days);
+      if (dates.length === 0) return 0;
+
+      const sum = dates.reduce((acc, date) => acc + (state.history[date][key] || 0), 0);
+      return Math.round(sum / dates.length);
+    }
+
+    // ==================== PUSHUP FUNCTIONS ====================
+    function updatePushups(amount) {
+      state.today.pushups = Math.max(0, state.today.pushups + amount);
+      saveCurrentDay();
+      renderPushupCounter();
+      renderProgressDashboard();
+      renderHistory();
+
+      const counter = document.getElementById('pushup-count');
+      counter.style.animation = 'none';
+      setTimeout(() => counter.style.animation = 'numberPop 0.3s ease-out', 10);
+    }
+
+    // ==================== PLANK TIMER FUNCTIONS ====================
+    function startPlankTimer() {
+      state.today.plankTimerActive = true;
+      state.today.plankTimerPaused = false;
+      state.today.plankTimerStart = Date.now();
+      state.today.plankElapsed = 0;
+
+      document.getElementById('start-btn').classList.add('hidden');
+      document.getElementById('pause-btn').classList.remove('hidden');
+      document.getElementById('stop-btn').classList.remove('hidden');
+      document.getElementById('plank-timer').classList.add('active');
+
+      timerInterval = setInterval(updateTimerDisplay, 100);
+    }
+
+    function pausePlankTimer() {
+      state.today.plankTimerPaused = true;
+      clearInterval(timerInterval);
+
+      document.getElementById('pause-btn').classList.add('hidden');
+      document.getElementById('resume-btn').classList.remove('hidden');
+    }
+
+    function resumePlankTimer() {
+      state.today.plankTimerPaused = false;
+      state.today.plankTimerStart = Date.now();
+
+      document.getElementById('resume-btn').classList.add('hidden');
+      document.getElementById('pause-btn').classList.remove('hidden');
+
+      timerInterval = setInterval(updateTimerDisplay, 100);
+    }
+
+    function stopPlankTimer() {
+      state.today.plankTimerActive = false;
+      state.today.plankTimerPaused = false;
+      clearInterval(timerInterval);
+
+      const finalTime = state.today.plankElapsed;
+      if (finalTime > state.today.plankBest) {
+        state.today.plankBest = finalTime;
+        saveCurrentDay();
+        renderProgressDashboard();
+        renderHistory();
+      }
+
+      state.today.plankElapsed = 0;
+      document.getElementById('plank-timer').textContent = '00:00.0';
+      document.getElementById('plank-timer').classList.remove('active');
+      document.getElementById('start-btn').classList.remove('hidden');
+      document.getElementById('pause-btn').classList.add('hidden');
+      document.getElementById('resume-btn').classList.add('hidden');
+      document.getElementById('stop-btn').classList.add('hidden');
+
+      renderPlankSection();
+    }
+
+    function updateTimerDisplay() {
+      if (!state.today.plankTimerPaused) {
+        const elapsed = (Date.now() - state.today.plankTimerStart) / 1000;
+        state.today.plankElapsed += elapsed;
+        state.today.plankTimerStart = Date.now();
+      }
+
+      document.getElementById('plank-timer').textContent = formatTime(state.today.plankElapsed);
+    }
+
+    // ==================== SAVE CURRENT DAY ====================
+    function saveCurrentDay() {
+      const today = getTodayString();
+      state.history[today] = {
+        pushups: state.today.pushups,
+        plank: state.today.plankBest
+      };
+      saveToStorage();
+    }
+
+    // ==================== RENDERING ====================
+    function renderPushupCounter() {
+      const dailyGoal = calculateDailyPushupGoal();
+      document.getElementById('pushup-count').textContent = state.today.pushups;
+      document.getElementById('pushup-progress-text').textContent = `${state.today.pushups} / ${dailyGoal}`;
+
+      const progress = dailyGoal > 0 ? Math.min((state.today.pushups / dailyGoal) * 100, 100) : 0;
+      document.getElementById('pushup-progress-bar').style.width = `${progress}%`;
+    }
+
+    function renderPlankSection() {
+      const target = calculatePlankTarget();
+      document.getElementById('plank-target').textContent = `Target: ${target} seconds`;
+      document.getElementById('plank-best-text').textContent = `${state.today.plankBest.toFixed(1)}s`;
+    }
+
+    function renderProgressDashboard() {
+      const streak = calculateStreak();
+      document.getElementById('streak-count').textContent = `🔥 ${streak}`;
+
+      const avgPushups = calculateAverage('pushups', 7);
+      document.getElementById('pushup-avg').textContent = avgPushups;
+
+      const avgPlank = calculateAverage('plank', 7);
+      document.getElementById('plank-avg').textContent = `${avgPlank}s`;
+
+      const daysToSummer = getDaysDifference(getTodayString(), SUMMER_DATE);
+      document.getElementById('days-to-summer').textContent = Math.max(0, daysToSummer);
+
+      const overallProgress = Math.min((avgPushups / state.settings.pushupGoal) * 100, 100);
+      document.getElementById('overall-progress-text').textContent = `${overallProgress.toFixed(0)}%`;
+      document.getElementById('overall-progress-bar').style.width = `${overallProgress}%`;
+    }
+
+    function renderHistory() {
+      const historyGrid = document.getElementById('history-grid');
+      const today = getTodayString();
+      const dates = [];
+
+      for (let i = 0; i < 14; i++) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        dates.push(date.toISOString().split('T')[0]);
+      }
+
+      historyGrid.innerHTML = dates.map(date => {
+        const entry = state.history[date];
+        const isRest = !entry || (entry.pushups === 0 && entry.plank === 0);
+        const dailyGoal = calculateDailyPushupGoal();
+
+        return `
+          <div class="day-card ${isRest ? 'rest-day' : ''}">
+            <div class="day-date">${formatDateDisplay(date)}</div>
+            <div class="day-stats">
+              <div class="day-stat">
+                <span class="day-stat-label">Pushups</span>
+                <span class="day-stat-value">
+                  ${entry ? entry.pushups : '—'}
+                  ${entry && entry.pushups >= dailyGoal ? '<span class="badge">✓</span>' : ''}
+                </span>
+              </div>
+              <div class="day-stat">
+                <span class="day-stat-label">Plank</span>
+                <span class="day-stat-value">
+                  ${entry && entry.plank ? entry.plank.toFixed(1) + 's' : '—'}
+                </span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderAll() {
+      renderPushupCounter();
+      renderPlankSection();
+      renderProgressDashboard();
+      renderHistory();
+    }
+
+    // ==================== RESET ====================
+    function resetAllData() {
+      if (confirm('Are you sure you want to reset all data? This cannot be undone.')) {
+        localStorage.removeItem(STORAGE_KEY);
+        location.reload();
+      }
+    }
+
+    // ==================== INITIALIZATION ====================
+    function init() {
+      loadFromStorage();
+      initializeToday();
+      renderAll();
+
+      window.addEventListener('focus', () => {
+        const today = getTodayString();
+        if (state.today.date !== today) {
+          initializeToday();
+          renderAll();
+        }
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

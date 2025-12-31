@@ -68,3 +68,5 @@ temp/
 .sass-cache/
 *.css.map
 *.js.map
+venv
+*.py

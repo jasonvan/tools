@@ -682,7 +682,7 @@
     /* ==================== CONVERSION CONTROLS ==================== */
     .radio-group {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: 1fr;
       gap: 1rem;
       margin-bottom: 2rem;
     }
@@ -690,6 +690,10 @@
     @media (min-width: 768px) {
       .radio-group {
         grid-template-columns: repeat(3, 1fr);
+      }
+
+      .radio-group .radio-option:last-child {
+        grid-column: 2 / 3;
       }
     }
 

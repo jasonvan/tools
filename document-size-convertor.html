@@ -775,6 +775,100 @@
       font-style: normal;
     }
 
+    /* ==================== CUSTOM DIMENSIONS SECTION ==================== */
+    .custom-dimensions-section {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--blueprint-border);
+      animation: slideDown 0.3s ease-out;
+    }
+
+    .custom-inputs-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .custom-input-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .custom-input-label {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .custom-input-wrapper {
+      display: flex;
+      gap: 0.5rem;
+      align-items: stretch;
+    }
+
+    .custom-input {
+      flex: 1;
+      padding: 0.875rem 1rem;
+      border: 1px solid var(--blueprint-border);
+      border-radius: 4px;
+      background: var(--blueprint-navy);
+      color: var(--text-primary);
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      min-width: 0;
+    }
+
+    .custom-input:focus {
+      outline: none;
+      border-color: var(--blueprint-cyan);
+      background: rgba(0, 119, 204, 0.05);
+      box-shadow: 0 0 0 3px var(--blueprint-cyan-glow);
+    }
+
+    .custom-input::placeholder {
+      color: var(--text-muted);
+      opacity: 0.6;
+    }
+
+    .custom-unit-select {
+      padding: 0.875rem 0.75rem;
+      border: 1px solid var(--blueprint-border);
+      border-radius: 4px;
+      background: var(--blueprint-navy);
+      color: var(--text-primary);
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-width: 70px;
+    }
+
+    .custom-unit-select:focus {
+      outline: none;
+      border-color: var(--blueprint-cyan);
+      background: rgba(0, 119, 204, 0.05);
+      box-shadow: 0 0 0 3px var(--blueprint-cyan-glow);
+    }
+
+    .custom-unit-select:hover {
+      border-color: var(--blueprint-cyan);
+    }
+
+    .custom-dimensions-info {
+      margin-top: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .custom-inputs-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+    }
+
     /* Visual paper size representation */
     .paper-visual {
       width: 40px;
@@ -1316,6 +1410,61 @@
               <div class="radio-description">Presentations</div>
             </div>
           </label>
+          <label class="radio-option" id="option-custom">
+            <input type="radio" name="target-format" value="custom">
+            <div>
+              <div class="radio-label">Custom</div>
+              <div class="radio-sublabel">Your size</div>
+              <div class="radio-description">Specify dimensions</div>
+            </div>
+          </label>
+        </div>
+
+        <!-- Custom Dimensions Section -->
+        <div id="custom-dimensions-section" class="custom-dimensions-section hidden">
+          <div class="section-header" style="margin-bottom: 1.5rem;">
+            <h2 style="font-size: 1.2rem;">Custom Dimensions</h2>
+            <p>Specify your target page size</p>
+          </div>
+
+          <div class="custom-inputs-grid">
+            <div class="custom-input-group">
+              <label class="custom-input-label">
+                <span class="measurement-label">Width</span>
+                <div class="custom-input-wrapper">
+                  <input type="number" id="custom-width" class="custom-input" placeholder="612" min="72" max="3456" step="0.01">
+                  <select id="custom-width-unit" class="custom-unit-select">
+                    <option value="pt" selected>pt</option>
+                    <option value="in">in</option>
+                    <option value="mm">mm</option>
+                  </select>
+                </div>
+              </label>
+            </div>
+
+            <div class="custom-input-group">
+              <label class="custom-input-label">
+                <span class="measurement-label">Height</span>
+                <div class="custom-input-wrapper">
+                  <input type="number" id="custom-height" class="custom-input" placeholder="792" min="72" max="3456" step="0.01">
+                  <select id="custom-height-unit" class="custom-unit-select">
+                    <option value="pt" selected>pt</option>
+                    <option value="in">in</option>
+                    <option value="mm">mm</option>
+                  </select>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="custom-dimensions-info">
+            <div class="info-callout" style="margin-top: 1rem;">
+              <p>
+                <strong>Units:</strong> Points (pt) are the standard PDF unit (72pt = 1 inch).
+                Common sizes: Letter = 612×792pt, A4 = 595×842pt
+              </p>
+            </div>
+          </div>
         </div>
 
         <div id="scale-preview" class="scale-preview hidden"></div>
@@ -1406,8 +1555,48 @@
     const progressContainer = document.getElementById('progress-container');
     const progressText = document.getElementById('progress-text');
     const progressBar = document.getElementById('progress-bar');
+    const customDimensionsSection = document.getElementById('custom-dimensions-section');
+    const customWidthInput = document.getElementById('custom-width');
+    const customHeightInput = document.getElementById('custom-height');
+    const customWidthUnit = document.getElementById('custom-width-unit');
+    const customHeightUnit = document.getElementById('custom-height-unit');
 
     // ==================== UTILITY FUNCTIONS ====================
+    function convertToPoints(value, unit) {
+      switch(unit) {
+        case 'in':
+          return value * 72;
+        case 'mm':
+          return value * 72 / 25.4;
+        case 'pt':
+        default:
+          return value;
+      }
+    }
+
+    function getCustomDimensions() {
+      const width = parseFloat(customWidthInput.value);
+      const height = parseFloat(customHeightInput.value);
+
+      if (!width || !height || width <= 0 || height <= 0) {
+        return null;
+      }
+
+      const widthInPoints = convertToPoints(width, customWidthUnit.value);
+      const heightInPoints = convertToPoints(height, customHeightUnit.value);
+
+      // Validate dimensions (min 1 inch, max 48 inches)
+      if (widthInPoints < 72 || heightInPoints < 72 || widthInPoints > 3456 || heightInPoints > 3456) {
+        return null;
+      }
+
+      return {
+        width: widthInPoints,
+        height: heightInPoints,
+        label: 'Custom',
+        description: `${width}${customWidthUnit.value}×${height}${customHeightUnit.value}`
+      };
+    }
     function detectPageSize(width, height) {
       for (const [key, size] of Object.entries(PAGE_SIZES)) {
         if (Math.abs(width - size.width) < SIZE_TOLERANCE &&
@@ -1596,7 +1785,37 @@
     }
 
     function updateScalePreview() {
-      if (!state.sourceFormat || !state.targetFormat || state.sourceFormat === 'custom') {
+      if (!state.sourceFormat || !state.targetFormat) {
+        scalePreview.classList.add('hidden');
+        return;
+      }
+
+      // Handle custom dimensions
+      if (state.targetFormat === 'custom') {
+        const customDims = getCustomDimensions();
+        if (!customDims) {
+          scalePreview.classList.add('hidden');
+          convertBtn.disabled = true;
+          return;
+        }
+
+        if (state.sourceFormat === 'custom') {
+          scalePreview.classList.add('hidden');
+          return;
+        }
+
+        const source = PAGE_SIZES[state.sourceFormat];
+        const scale = calculateScale(source.width, source.height, customDims.width, customDims.height);
+        const percentage = (scale * 100).toFixed(1);
+
+        scalePreview.textContent = `SCALE FACTOR: ${percentage}% • Content will be centered on ${customDims.description} page`;
+        scalePreview.classList.remove('hidden');
+        convertBtn.disabled = false;
+        return;
+      }
+
+      // Handle preset formats
+      if (state.sourceFormat === 'custom') {
         scalePreview.classList.add('hidden');
         return;
       }
@@ -1669,9 +1888,19 @@
       const pageCount = pdfDoc.getPageCount();
 
       // Get source and target dimensions
-      const targetSize = PAGE_SIZES[state.targetFormat];
-      const targetWidth = targetSize.width;
-      const targetHeight = targetSize.height;
+      let targetWidth, targetHeight;
+      if (state.targetFormat === 'custom') {
+        const customDims = getCustomDimensions();
+        if (!customDims) {
+          throw new Error('Invalid custom dimensions');
+        }
+        targetWidth = customDims.width;
+        targetHeight = customDims.height;
+      } else {
+        const targetSize = PAGE_SIZES[state.targetFormat];
+        targetWidth = targetSize.width;
+        targetHeight = targetSize.height;
+      }
 
       // Process each page
       for (let i = 0; i < pageCount; i++) {
@@ -1716,7 +1945,16 @@
 
       // Generate filename
       const baseName = state.fileName.replace(/\.pdf$/i, '');
-      const newFileName = `${baseName}_to_${state.targetFormat}.pdf`;
+      let targetFormatName = state.targetFormat;
+
+      if (state.targetFormat === 'custom') {
+        const customDims = getCustomDimensions();
+        if (customDims) {
+          targetFormatName = `custom_${customDims.description.replace(/×/g, 'x')}`;
+        }
+      }
+
+      const newFileName = `${baseName}_to_${targetFormatName}.pdf`;
 
       // Create download link
       const link = document.createElement('a');
@@ -1740,7 +1978,29 @@
         });
         document.getElementById(`option-${e.target.value}`).classList.add('selected');
 
+        // Show/hide custom dimensions section
+        if (e.target.value === 'custom') {
+          customDimensionsSection.classList.remove('hidden');
+        } else {
+          customDimensionsSection.classList.add('hidden');
+        }
+
         updateScalePreview();
+      });
+    });
+
+    // Add event listeners to custom dimension inputs
+    [customWidthInput, customHeightInput, customWidthUnit, customHeightUnit].forEach(element => {
+      element.addEventListener('input', () => {
+        if (state.targetFormat === 'custom') {
+          updateScalePreview();
+        }
+      });
+
+      element.addEventListener('change', () => {
+        if (state.targetFormat === 'custom') {
+          updateScalePreview();
+        }
       });
     });
 

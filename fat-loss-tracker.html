@@ -57,7 +57,7 @@
       left: 0;
       right: 0;
       height: 400px;
-      background: linear-gradient(135deg, var(--primary-orange) 0%, var(--orange-dark) 100%);
+      background: linear-gradient(135deg, #ffb89a 0%, var(--orange-light) 100%);
       clip-path: polygon(0 0, 100% 0, 100% 70%, 0 100%);
       z-index: 0;
       opacity: 0;
@@ -100,10 +100,6 @@
       }
     }
 
-    .brand {
-      color: var(--warm-white);
-    }
-
     .brand h1 {
       font-family: var(--font-display);
       font-size: clamp(2.5rem, 5vw, 4rem);
@@ -111,14 +107,15 @@
       line-height: 0.95;
       margin-bottom: 0.5rem;
       letter-spacing: -0.02em;
+      color: var(--orange-dark);
     }
 
     .brand-tagline {
       font-size: 0.95rem;
       font-weight: 300;
-      opacity: 0.9;
       letter-spacing: 0.05em;
       text-transform: uppercase;
+      color: #000000;
     }
 
     .header-actions {
@@ -791,7 +788,6 @@
     <!-- Checklist -->
     <div class="checklist-card">
       <div class="section-header">
-        <span>📋</span>
         <span>Today's Checklist</span>
       </div>
 
@@ -1147,7 +1143,7 @@
 
     function renderStats() {
       const streak = calculateStreak();
-      document.getElementById('streak-count').textContent = streak === 0 ? '0' : `${streak} 🔥`;
+      document.getElementById('streak-count').textContent = streak;
 
       const weeklyLifts = getWeeklyLiftingCount(state.currentDate);
       const goal = state.settings.weeklyLiftingGoal;

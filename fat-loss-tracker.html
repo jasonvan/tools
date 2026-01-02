@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fat Loss Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ==================== CSS VARIABLES ==================== */
+    :root {
+      --primary-orange: #ff6b35;
+      --orange-dark: #d94a1a;
+      --orange-light: #ff8c61;
+      --accent-orange: #ff4500;
+      --cream: #faf7f0;
+      --cream-dark: #f4ede0;
+      --charcoal: #2d3436;
+      --charcoal-light: #4a5658;
+      --warm-white: #fffef9;
+
+      --font-display: 'Fraunces', serif;
+      --font-body: 'Sora', sans-serif;
+
+      --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      --ease-smooth: cubic-bezier(0.4, 0.0, 0.2, 1);
+    }
+
+    /* ==================== RESET ==================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      font-family: var(--font-body);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--cream);
+      color: var(--charcoal);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Decorative background pattern */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 400px;
+      background: linear-gradient(135deg, var(--primary-orange) 0%, var(--orange-dark) 100%);
+      clip-path: polygon(0 0, 100% 0, 100% 70%, 0 100%);
+      z-index: 0;
+      opacity: 0;
+      animation: slideDown 0.8s var(--ease-smooth) forwards;
+    }
+
+    @keyframes slideDown {
+      to { opacity: 1; }
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* ==================== HEADER ==================== */
+    .header {
+      position: relative;
+      z-index: 10;
+      padding: 3rem 1.5rem 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      opacity: 0;
+      animation: fadeInUp 0.6s var(--ease-smooth) 0.2s forwards;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .brand {
+      color: var(--warm-white);
+    }
+
+    .brand h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 900;
+      line-height: 0.95;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-tagline {
+      font-size: 0.95rem;
+      font-weight: 300;
+      opacity: 0.9;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .icon-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      font-size: 1.25rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s var(--ease-smooth);
+    }
+
+    .icon-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.4);
+      transform: scale(1.05);
+    }
+
+    .icon-btn svg {
+      display: block;
+      transition: transform 0.3s var(--ease-smooth);
+    }
+
+    .icon-btn:hover svg {
+      transform: rotate(90deg);
+    }
+
+    /* ==================== MAIN CONTAINER ==================== */
+    .container {
+      position: relative;
+      z-index: 10;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 1.5rem 3rem;
+    }
+
+    /* ==================== DATE NAVIGATION ==================== */
+    .date-nav {
+      background: var(--warm-white);
+      border: 3px solid var(--charcoal);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 8px 8px 0 var(--primary-orange);
+      opacity: 0;
+      animation: fadeInUp 0.6s var(--ease-smooth) 0.3s forwards;
+    }
+
+    .date-nav-btn {
+      background: var(--charcoal);
+      color: white;
+      border: none;
+      width: 40px;
+      height: 40px;
+      font-size: 1.25rem;
+      cursor: pointer;
+      font-weight: 700;
+      transition: all 0.2s var(--ease-smooth);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .date-nav-btn:hover {
+      background: var(--accent-orange);
+      transform: scale(1.1);
+    }
+
+    .date-nav-btn:disabled {
+      background: var(--cream-dark);
+      color: var(--charcoal-light);
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    .date-nav-btn:disabled:hover {
+      transform: none;
+    }
+
+    .date-display {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--charcoal);
+    }
+
+    /* ==================== CHECKLIST CARD ==================== */
+    .checklist-card {
+      background: var(--warm-white);
+      border: 3px solid var(--charcoal);
+      padding: 2.5rem;
+      margin-bottom: 2.5rem;
+      box-shadow: 8px 8px 0 var(--orange-dark);
+      opacity: 0;
+      animation: fadeInUp 0.6s var(--ease-smooth) 0.4s forwards;
+    }
+
+    .section-header {
+      font-family: var(--font-display);
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--charcoal);
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 3px solid var(--charcoal);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .habit-category {
+      margin-bottom: 2.5rem;
+    }
+
+    .habit-category:last-child {
+      margin-bottom: 0;
+    }
+
+    .category-label {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--orange-dark);
+      margin-bottom: 1.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .habit-item {
+      display: flex;
+      align-items: center;
+      padding: 1.25rem;
+      margin-bottom: 0.75rem;
+      background: var(--cream);
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.25s var(--ease-smooth);
+      position: relative;
+    }
+
+    .habit-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--primary-orange);
+      opacity: 0;
+      transition: opacity 0.25s var(--ease-smooth);
+      z-index: 0;
+    }
+
+    .habit-item:hover::before {
+      opacity: 0.05;
+    }
+
+    .habit-item.checked {
+      background: var(--primary-orange);
+      border-color: var(--primary-orange);
+    }
+
+    .habit-item.checked::before {
+      opacity: 1;
+    }
+
+    .habit-item > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .habit-checkbox {
+      width: 32px;
+      height: 32px;
+      border: 3px solid var(--charcoal);
+      margin-right: 1.25rem;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: white;
+      transition: all 0.3s var(--ease-bounce);
+    }
+
+    .habit-item.checked .habit-checkbox {
+      background: var(--accent-orange);
+      border-color: var(--accent-orange);
+      transform: rotate(360deg);
+    }
+
+    .habit-checkbox::after {
+      content: '✓';
+      color: white;
+      font-weight: 900;
+      font-size: 1.25rem;
+      opacity: 0;
+      transform: scale(0) rotate(-180deg);
+      transition: all 0.3s var(--ease-bounce);
+    }
+
+    .habit-item.checked .habit-checkbox::after {
+      opacity: 1;
+      transform: scale(1) rotate(0deg);
+    }
+
+    .habit-label {
+      flex: 1;
+      font-weight: 500;
+      font-size: 1.05rem;
+      color: var(--charcoal);
+      transition: color 0.25s;
+    }
+
+    .habit-item.checked .habit-label {
+      color: white;
+    }
+
+    .habit-info {
+      font-size: 0.9rem;
+      color: var(--charcoal-light);
+      margin-left: 3.5rem;
+      margin-top: -0.5rem;
+      margin-bottom: 0.75rem;
+      font-weight: 300;
+    }
+
+    /* ==================== STATS SECTION ==================== */
+    .stats-section {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .stat-card {
+      background: var(--charcoal);
+      color: white;
+      padding: 2.5rem 2rem;
+      border: 3px solid var(--charcoal);
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      animation: fadeInUp 0.6s var(--ease-smooth) forwards;
+    }
+
+    .stat-card:nth-child(1) {
+      animation-delay: 0.5s;
+      box-shadow: 8px 8px 0 var(--primary-orange);
+    }
+
+    .stat-card:nth-child(2) {
+      animation-delay: 0.6s;
+      box-shadow: 8px 8px 0 var(--accent-orange);
+    }
+
+    .stat-card:nth-child(3) {
+      animation-delay: 0.7s;
+      box-shadow: 8px 8px 0 var(--orange-dark);
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 100px;
+      height: 100px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 50%;
+      transform: translate(30%, -30%);
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      opacity: 0.7;
+      margin-bottom: 0.75rem;
+      font-weight: 600;
+    }
+
+    .stat-value {
+      font-family: var(--font-display);
+      font-size: 3.5rem;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+
+    /* ==================== HISTORY GRID ==================== */
+    .history-section {
+      opacity: 0;
+      animation: fadeInUp 0.6s var(--ease-smooth) 0.8s forwards;
+    }
+
+    .history-header {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--charcoal);
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 3px solid var(--charcoal);
+    }
+
+    .history-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .day-card {
+      background: var(--warm-white);
+      border: 3px solid var(--charcoal);
+      padding: 1.5rem;
+      transition: all 0.3s var(--ease-smooth);
+      position: relative;
+    }
+
+    .day-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 6px 6px 0 var(--primary-orange);
+    }
+
+    .day-card.perfect-day {
+      background: var(--primary-orange);
+      border-color: var(--primary-orange);
+    }
+
+    .day-card.perfect-day:hover {
+      box-shadow: 6px 6px 0 var(--accent-orange);
+    }
+
+    .day-date {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--charcoal-light);
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .day-card.perfect-day .day-date {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .day-completion {
+      font-family: var(--font-display);
+      font-size: 2.5rem;
+      font-weight: 900;
+      text-align: center;
+      color: var(--primary-orange);
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .day-card.perfect-day .day-completion {
+      color: white;
+    }
+
+    .day-habits {
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--charcoal-light);
+      font-weight: 500;
+    }
+
+    .day-card.perfect-day .day-habits {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    /* ==================== SETTINGS MODAL ==================== */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(45, 52, 54, 0.85);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 1rem;
+      animation: fadeIn 0.3s var(--ease-smooth);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal {
+      background: var(--warm-white);
+      border: 4px solid var(--charcoal);
+      max-width: 600px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 12px 12px 0 var(--primary-orange);
+      animation: modalSlideIn 0.4s var(--ease-bounce);
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .modal-header {
+      padding: 2rem 2.5rem;
+      border-bottom: 3px solid var(--charcoal);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--cream);
+    }
+
+    .modal-title {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--charcoal);
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 2rem;
+      cursor: pointer;
+      color: var(--charcoal);
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .modal-close:hover {
+      color: var(--primary-orange);
+      transform: rotate(90deg);
+    }
+
+    .modal-body {
+      padding: 2.5rem;
+    }
+
+    .setting-item {
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
+      border-bottom: 2px solid var(--cream-dark);
+    }
+
+    .setting-item:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .setting-label {
+      font-family: var(--font-display);
+      font-weight: 600;
+      font-size: 1.25rem;
+      color: var(--charcoal);
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .setting-description {
+      font-size: 0.9rem;
+      color: var(--charcoal-light);
+      margin-bottom: 1.25rem;
+      font-weight: 300;
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 70px;
+      height: 38px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--cream-dark);
+      border: 3px solid var(--charcoal);
+      transition: 0.3s;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 24px;
+      width: 24px;
+      left: 4px;
+      bottom: 4px;
+      background: var(--charcoal);
+      transition: 0.3s var(--ease-bounce);
+    }
+
+    input:checked + .toggle-slider {
+      background: var(--primary-orange);
+      border-color: var(--primary-orange);
+    }
+
+    input:checked + .toggle-slider:before {
+      transform: translateX(32px);
+      background: white;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .radio-option {
+      flex: 1;
+    }
+
+    .radio-option input[type="radio"] {
+      display: none;
+    }
+
+    .radio-label {
+      display: block;
+      padding: 1rem;
+      background: var(--cream);
+      border: 3px solid var(--charcoal);
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s var(--ease-smooth);
+      font-weight: 600;
+      font-size: 1.25rem;
+    }
+
+    .radio-label:hover {
+      background: var(--cream-dark);
+      transform: translateY(-2px);
+    }
+
+    .radio-option input[type="radio"]:checked + .radio-label {
+      background: var(--primary-orange);
+      border-color: var(--primary-orange);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 4px 4px 0 var(--charcoal);
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 768px) {
+      .header {
+        padding: 2rem 1rem 1.5rem;
+      }
+
+      .brand h1 {
+        font-size: 2.5rem;
+      }
+
+      .date-nav {
+        padding: 1rem;
+      }
+
+      .date-display {
+        font-size: 1.1rem;
+      }
+
+      .checklist-card {
+        padding: 1.5rem;
+      }
+
+      .section-header {
+        font-size: 1.5rem;
+      }
+
+      .stat-card {
+        padding: 2rem 1.5rem;
+      }
+
+      .stat-value {
+        font-size: 2.5rem;
+      }
+
+      .history-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      }
+
+      .modal-body {
+        padding: 1.5rem;
+      }
+
+      /* Reduce shadows on mobile */
+      .date-nav,
+      .checklist-card,
+      .stat-card:nth-child(1),
+      .stat-card:nth-child(2),
+      .stat-card:nth-child(3) {
+        box-shadow: 4px 4px 0 var(--primary-orange);
+      }
+
+      .day-card:hover {
+        box-shadow: 3px 3px 0 var(--primary-orange);
+      }
+
+      .modal {
+        box-shadow: 6px 6px 0 var(--primary-orange);
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- ==================== HEADER ==================== -->
+  <header class="header">
+    <div class="header-content">
+      <div class="brand">
+        <h1>Daily Habits</h1>
+        <div class="brand-tagline">Track • Build • Transform</div>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" onclick="openSettings()" aria-label="Settings">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square" stroke-linejoin="miter">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M12 1v6m0 6v10M1 12h6m6 0h10"/>
+            <path d="M4.22 4.22l4.24 4.24m5.08 5.08l4.24 4.24M4.22 19.78l4.24-4.24m5.08-5.08l4.24-4.24"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN CONTAINER ==================== -->
+  <main class="container">
+    <!-- Date Navigation -->
+    <div class="date-nav">
+      <button class="date-nav-btn" onclick="navigateDay(-1)">←</button>
+      <div class="date-display" id="current-date"></div>
+      <button class="date-nav-btn" id="next-day-btn" onclick="navigateDay(1)">→</button>
+    </div>
+
+    <!-- Checklist -->
+    <div class="checklist-card">
+      <div class="section-header">
+        <span>📋</span>
+        <span>Today's Checklist</span>
+      </div>
+
+      <!-- Nutrition -->
+      <div class="habit-category">
+        <div class="category-label">Nutrition</div>
+
+        <div class="habit-item" onclick="toggleHabit('calories')" id="habit-calories">
+          <div class="habit-checkbox"></div>
+          <div class="habit-label">Calorie Target Met</div>
+        </div>
+        <div class="habit-info">TDEE minus 1,000 calories</div>
+
+        <div class="habit-item" onclick="toggleHabit('protein')" id="habit-protein">
+          <div class="habit-checkbox"></div>
+          <div class="habit-label">Protein Goal Met</div>
+        </div>
+        <div class="habit-info">Bodyweight × 0.8</div>
+      </div>
+
+      <!-- Sleep -->
+      <div class="habit-category">
+        <div class="category-label">Sleep Optimization</div>
+
+        <div class="habit-item" onclick="toggleHabit('noLateFood')" id="habit-noLateFood">
+          <div class="habit-checkbox"></div>
+          <div class="habit-label">No food 3hrs before bed</div>
+        </div>
+
+        <div class="habit-item" onclick="toggleHabit('consistentSleep')" id="habit-consistentSleep">
+          <div class="habit-checkbox"></div>
+          <div class="habit-label">Consistent sleep/wake time</div>
+        </div>
+
+        <div class="habit-item" onclick="toggleHabit('blueBlockers')" id="habit-blueBlockers">
+          <div class="habit-checkbox"></div>
+          <div class="habit-label">Blue blockers after sunset</div>
+        </div>
+
+        <div class="habit-item" onclick="toggleHabit('supplements')" id="habit-supplements">
+          <div class="habit-checkbox"></div>
+          <div class="habit-label">Took supplements</div>
+        </div>
+        <div class="habit-info">Glycine, L-Theanine & Magnesium</div>
+      </div>
+
+      <!-- Training -->
+      <div class="habit-category">
+        <div class="category-label">Training</div>
+
+        <div class="habit-item" onclick="toggleHabit('lifted')" id="habit-lifted">
+          <div class="habit-checkbox"></div>
+          <div class="habit-label">Strength training</div>
+        </div>
+        <div class="habit-info" id="lifting-progress">0/4 this week</div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-section">
+      <div class="stat-card">
+        <div class="stat-label">Current Streak</div>
+        <div class="stat-value" id="streak-count">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Weekly Lifts</div>
+        <div class="stat-value" id="weekly-lifts">0/4</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">7-Day Average</div>
+        <div class="stat-value" id="weekly-avg">0%</div>
+      </div>
+    </div>
+
+    <!-- History -->
+    <div class="history-section">
+      <h2 class="history-header">7-Day History</h2>
+      <div class="history-grid" id="history-grid"></div>
+    </div>
+  </main>
+
+  <!-- ==================== SETTINGS MODAL ==================== -->
+  <div id="settings-modal" class="modal-overlay hidden" onclick="closeSettingsIfOverlay(event)">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Settings</div>
+        <button class="modal-close" onclick="closeSettings()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="setting-item">
+          <label class="setting-label">Track Blue Blockers</label>
+          <div class="setting-description">Include blue blocker usage in daily habits</div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-blue-blockers" onchange="toggleOptionalHabit('trackBlueBlockers')">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <label class="setting-label">Track Supplements</label>
+          <div class="setting-description">Include supplement intake in daily habits</div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-supplements" onchange="toggleOptionalHabit('trackSupplements')">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <label class="setting-label">Weekly Lifting Goal</label>
+          <div class="setting-description">Target number of strength training sessions per week</div>
+          <div class="radio-group">
+            <div class="radio-option">
+              <input type="radio" id="goal-3" name="lifting-goal" value="3" onchange="setLiftingGoal(3)">
+              <label for="goal-3" class="radio-label">3×</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" id="goal-4" name="lifting-goal" value="4" onchange="setLiftingGoal(4)">
+              <label for="goal-4" class="radio-label">4×</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==================== CONSTANTS ====================
+    const STORAGE_KEY = 'fatLossTracker';
+
+    // ==================== STATE ====================
+    let state = {
+      settings: {
+        weeklyLiftingGoal: 4,
+        trackBlueBlockers: false,
+        trackSupplements: false
+      },
+      currentDate: null,
+      history: {}
+    };
+
+    // ==================== STORAGE ====================
+    function saveToStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        console.error('Failed to save to localStorage:', e);
+      }
+    }
+
+    function loadFromStorage() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const loaded = JSON.parse(saved);
+          state = {
+            ...state,
+            ...loaded,
+            settings: {
+              ...state.settings,
+              ...loaded.settings
+            }
+          };
+        }
+      } catch (e) {
+        console.error('Failed to load from localStorage:', e);
+      }
+    }
+
+    // ==================== DATE HELPERS ====================
+    function getTodayString() {
+      return new Date().toISOString().split('T')[0];
+    }
+
+    function formatDateDisplay(dateString) {
+      const date = new Date(dateString + 'T12:00:00');
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const targetDate = new Date(date);
+      targetDate.setHours(0, 0, 0, 0);
+
+      const diffTime = targetDate - today;
+      const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays === 0) return 'Today';
+      if (diffDays === -1) return 'Yesterday';
+      if (diffDays === 1) return 'Tomorrow';
+
+      const options = { month: 'short', day: 'numeric' };
+      return date.toLocaleDateString('en-US', options);
+    }
+
+    function getWeekStart(dateString) {
+      const date = new Date(dateString + 'T12:00:00');
+      const day = date.getDay();
+      const diff = date.getDate() - day;
+      const weekStart = new Date(date.setDate(diff));
+      return weekStart.toISOString().split('T')[0];
+    }
+
+    function navigateDay(offset) {
+      const current = new Date(state.currentDate + 'T12:00:00');
+      current.setDate(current.getDate() + offset);
+      state.currentDate = current.toISOString().split('T')[0];
+      renderAll();
+    }
+
+    // ==================== HABIT HELPERS ====================
+    function getEnabledHabits() {
+      const baseHabits = ['calories', 'protein', 'noLateFood', 'consistentSleep'];
+      if (state.settings.trackBlueBlockers) baseHabits.push('blueBlockers');
+      if (state.settings.trackSupplements) baseHabits.push('supplements');
+      return baseHabits;
+    }
+
+    function getDayData(dateString) {
+      return state.history[dateString] || {
+        calories: false,
+        protein: false,
+        noLateFood: false,
+        consistentSleep: false,
+        blueBlockers: false,
+        supplements: false,
+        lifted: false
+      };
+    }
+
+    function toggleHabit(habitName) {
+      const dateString = state.currentDate;
+      if (!state.history[dateString]) {
+        state.history[dateString] = getDayData(dateString);
+      }
+      state.history[dateString][habitName] = !state.history[dateString][habitName];
+      saveToStorage();
+      renderAll();
+    }
+
+    function isDayComplete(dateString) {
+      const data = getDayData(dateString);
+      const enabledHabits = getEnabledHabits();
+      return enabledHabits.every(habit => data[habit]);
+    }
+
+    function getCompletionPercentage(dateString) {
+      const data = getDayData(dateString);
+      const enabledHabits = getEnabledHabits();
+      if (enabledHabits.length === 0) return 0;
+      const completed = enabledHabits.filter(habit => data[habit]).length;
+      return Math.round((completed / enabledHabits.length) * 100);
+    }
+
+    // ==================== STATS CALCULATIONS ====================
+    function calculateStreak() {
+      let streak = 0;
+      const today = getTodayString();
+      let checkDate = new Date(today + 'T12:00:00');
+
+      while (true) {
+        const dateString = checkDate.toISOString().split('T')[0];
+        if (dateString > today) break;
+
+        if (isDayComplete(dateString)) {
+          streak++;
+        } else {
+          break;
+        }
+
+        checkDate.setDate(checkDate.getDate() - 1);
+      }
+
+      return streak;
+    }
+
+    function getWeeklyLiftingCount(dateString) {
+      const weekStart = getWeekStart(dateString);
+      const weekStartDate = new Date(weekStart + 'T12:00:00');
+      let count = 0;
+
+      for (let i = 0; i < 7; i++) {
+        const checkDate = new Date(weekStartDate);
+        checkDate.setDate(checkDate.getDate() + i);
+        const checkString = checkDate.toISOString().split('T')[0];
+        const data = getDayData(checkString);
+        if (data.lifted) count++;
+      }
+
+      return count;
+    }
+
+    function get7DayAverage() {
+      let totalPercentage = 0;
+      const today = new Date(state.currentDate + 'T12:00:00');
+
+      for (let i = 0; i < 7; i++) {
+        const checkDate = new Date(today);
+        checkDate.setDate(checkDate.getDate() - i);
+        const dateString = checkDate.toISOString().split('T')[0];
+        totalPercentage += getCompletionPercentage(dateString);
+      }
+
+      return Math.round(totalPercentage / 7);
+    }
+
+    // ==================== RENDERING ====================
+    function renderCurrentDate() {
+      document.getElementById('current-date').textContent = formatDateDisplay(state.currentDate);
+
+      const today = getTodayString();
+      const nextBtn = document.getElementById('next-day-btn');
+      if (state.currentDate >= today) {
+        nextBtn.disabled = true;
+      } else {
+        nextBtn.disabled = false;
+      }
+    }
+
+    function renderHabits() {
+      const data = getDayData(state.currentDate);
+
+      // Update all habit checkboxes
+      const allHabits = ['calories', 'protein', 'noLateFood', 'consistentSleep', 'blueBlockers', 'supplements', 'lifted'];
+      allHabits.forEach(habit => {
+        const element = document.getElementById(`habit-${habit}`);
+        if (element) {
+          if (data[habit]) {
+            element.classList.add('checked');
+          } else {
+            element.classList.remove('checked');
+          }
+        }
+      });
+
+      // Show/hide optional habits
+      const blueBlockersElement = document.getElementById('habit-blueBlockers');
+      const supplementsElement = document.getElementById('habit-supplements');
+
+      if (state.settings.trackBlueBlockers) {
+        blueBlockersElement.classList.remove('hidden');
+      } else {
+        blueBlockersElement.classList.add('hidden');
+      }
+
+      if (state.settings.trackSupplements) {
+        supplementsElement.classList.remove('hidden');
+      } else {
+        supplementsElement.classList.add('hidden');
+      }
+
+      // Update lifting progress
+      const weeklyLifts = getWeeklyLiftingCount(state.currentDate);
+      const goal = state.settings.weeklyLiftingGoal;
+      document.getElementById('lifting-progress').textContent = `${weeklyLifts}/${goal} this week`;
+    }
+
+    function renderStats() {
+      const streak = calculateStreak();
+      document.getElementById('streak-count').textContent = streak === 0 ? '0' : `${streak} 🔥`;
+
+      const weeklyLifts = getWeeklyLiftingCount(state.currentDate);
+      const goal = state.settings.weeklyLiftingGoal;
+      document.getElementById('weekly-lifts').textContent = `${weeklyLifts}/${goal}`;
+
+      const avg = get7DayAverage();
+      document.getElementById('weekly-avg').textContent = `${avg}%`;
+    }
+
+    function renderHistory() {
+      const historyGrid = document.getElementById('history-grid');
+      const currentDate = new Date(state.currentDate + 'T12:00:00');
+      const dates = [];
+
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date(currentDate);
+        date.setDate(date.getDate() - i);
+        dates.push(date.toISOString().split('T')[0]);
+      }
+
+      historyGrid.innerHTML = dates.map(dateString => {
+        const completion = getCompletionPercentage(dateString);
+        const isPerfect = isDayComplete(dateString);
+        const data = getDayData(dateString);
+        const enabledHabits = getEnabledHabits();
+        const completedCount = enabledHabits.filter(h => data[h]).length;
+
+        return `
+          <div class="day-card ${isPerfect ? 'perfect-day' : ''}">
+            <div class="day-date">${formatDateDisplay(dateString)}</div>
+            <div class="day-completion">${completion}%</div>
+            <div class="day-habits">${completedCount}/${enabledHabits.length} habits</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderAll() {
+      renderCurrentDate();
+      renderHabits();
+      renderStats();
+      renderHistory();
+    }
+
+    // ==================== SETTINGS ====================
+    function openSettings() {
+      // Update toggle states
+      document.getElementById('toggle-blue-blockers').checked = state.settings.trackBlueBlockers;
+      document.getElementById('toggle-supplements').checked = state.settings.trackSupplements;
+
+      // Update radio buttons
+      document.getElementById(`goal-${state.settings.weeklyLiftingGoal}`).checked = true;
+
+      document.getElementById('settings-modal').classList.remove('hidden');
+    }
+
+    function closeSettings() {
+      document.getElementById('settings-modal').classList.add('hidden');
+    }
+
+    function closeSettingsIfOverlay(event) {
+      if (event.target.classList.contains('modal-overlay')) {
+        closeSettings();
+      }
+    }
+
+    function toggleOptionalHabit(settingName) {
+      state.settings[settingName] = !state.settings[settingName];
+      saveToStorage();
+      renderAll();
+    }
+
+    function setLiftingGoal(goal) {
+      state.settings.weeklyLiftingGoal = goal;
+      saveToStorage();
+      renderAll();
+    }
+
+    // ==================== INITIALIZATION ====================
+    function init() {
+      loadFromStorage();
+      state.currentDate = getTodayString();
+      renderAll();
+
+      // Handle day changes when window regains focus
+      window.addEventListener('focus', () => {
+        const today = getTodayString();
+        if (state.currentDate < today) {
+          state.currentDate = today;
+          renderAll();
+        }
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

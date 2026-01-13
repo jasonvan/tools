@@ -6,7 +6,7 @@
   <title>Markdown to PDF Converter</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
@@ -20,8 +20,8 @@
       --border-light: #e2dfd9;
       --text-muted: #6b7280;
 
-      --font-display: 'Cormorant Garamond', serif;
-      --font-body: 'Work Sans', sans-serif;
+      --font-display: 'Space Grotesk', sans-serif;
+      --font-body: 'Inter', sans-serif;
     }
 
     * {
@@ -552,6 +552,20 @@ Inline code looks like this: \`const x = 42;\`
 
 Visit [tools.jasonvan.com](https://tools.jasonvan.com) for more tools.
 
+## Page Breaks
+
+You can insert page breaks using HTML comments:
+
+\`\`\`
+<!-- pagebreak -->
+\`\`\`
+
+<!-- pagebreak -->
+
+## New Page
+
+This content appears on a new page in the PDF!
+
 ---
 
 *Edit the markdown on the left to see changes in real-time!*
@@ -618,38 +632,56 @@ Visit [tools.jasonvan.com](https://tools.jasonvan.com) for more tools.
 
       try {
         // Parse markdown to HTML
-        const html = marked.parse(markdown);
+        let html = marked.parse(markdown);
+
+        // Replace <!-- pagebreak --> comments with page break divs
+        html = html.replace(/<!--\s*pagebreak\s*-->/gi, '<div style="page-break-after: always;"></div>');
 
         // Create a temporary container with styling
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = html;
-        tempDiv.style.fontFamily = "'Work Sans', sans-serif";
+        tempDiv.style.fontFamily = "'Inter', sans-serif";
         tempDiv.style.color = '#1a1a2e';
-        tempDiv.style.padding = '40px';
+        tempDiv.style.padding = '20px';
         tempDiv.style.lineHeight = '1.6';
+        tempDiv.style.wordWrap = 'break-word';
+        tempDiv.style.overflowWrap = 'break-word';
+        tempDiv.style.whiteSpace = 'normal';
 
         // Apply heading styles
         const headings = tempDiv.querySelectorAll('h1, h2, h3, h4, h5, h6');
         headings.forEach(h => {
-          h.style.fontFamily = "'Cormorant Garamond', serif";
+          h.style.fontFamily = "'Space Grotesk', sans-serif";
           h.style.fontWeight = '600';
           h.style.marginTop = '1.5em';
           h.style.marginBottom = '0.5em';
           h.style.lineHeight = '1.3';
+          h.style.wordWrap = 'break-word';
+          h.style.overflowWrap = 'break-word';
         });
 
         const h1s = tempDiv.querySelectorAll('h1');
         h1s.forEach(h => {
-          h.style.fontSize = '2.5rem';
+          h.style.fontSize = '1.75rem';
           h.style.borderBottom = '3px solid #d4af37';
           h.style.paddingBottom = '0.3em';
         });
 
         const h2s = tempDiv.querySelectorAll('h2');
         h2s.forEach(h => {
-          h.style.fontSize = '2rem';
+          h.style.fontSize = '1.5rem';
           h.style.borderBottom = '1px solid #e2dfd9';
           h.style.paddingBottom = '0.3em';
+        });
+
+        // Apply word-wrap to all text elements
+        const textElements = tempDiv.querySelectorAll('p, li, td, th, div, span, a');
+        textElements.forEach(el => {
+          el.style.wordWrap = 'break-word';
+          el.style.overflowWrap = 'break-word';
+          el.style.wordBreak = 'break-word';
+          el.style.whiteSpace = 'normal';
+          el.style.maxWidth = '100%';
         });
 
         // Apply other styles
@@ -680,6 +712,8 @@ Visit [tools.jasonvan.com](https://tools.jasonvan.com) for more tools.
           pre.style.overflowX = 'auto';
           pre.style.marginBottom = '1em';
           pre.style.border = '2px solid #d4af37';
+          pre.style.whiteSpace = 'pre-wrap';
+          pre.style.wordBreak = 'break-word';
         });
 
         const blockquotes = tempDiv.querySelectorAll('blockquote');
@@ -697,6 +731,7 @@ Visit [tools.jasonvan.com](https://tools.jasonvan.com) for more tools.
           table.style.width = '100%';
           table.style.borderCollapse = 'collapse';
           table.style.marginBottom = '1em';
+          table.style.tableLayout = 'fixed';
 
           const ths = table.querySelectorAll('th');
           ths.forEach(th => {
@@ -706,27 +741,37 @@ Visit [tools.jasonvan.com](https://tools.jasonvan.com) for more tools.
             th.style.textAlign = 'left';
             th.style.border = '1px solid #e2dfd9';
             th.style.fontWeight = '600';
+            th.style.wordWrap = 'break-word';
+            th.style.overflowWrap = 'break-word';
           });
 
           const tds = table.querySelectorAll('td');
           tds.forEach(td => {
             td.style.padding = '0.75rem';
             td.style.border = '1px solid #e2dfd9';
+            td.style.wordWrap = 'break-word';
+            td.style.overflowWrap = 'break-word';
           });
         });
 
         // Configure PDF options
         const filename = (filenameInput.value || 'document').trim();
         const opt = {
-          margin: [15, 15, 15, 15],
+          margin: [10, 10, 10, 10],
           filename: `${filename}.pdf`,
           image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true },
+          html2canvas: {
+            scale: 2,
+            useCORS: true,
+            letterRendering: true,
+            logging: false
+          },
           jsPDF: {
             unit: 'mm',
             format: state.pageSize,
             orientation: state.orientation
-          }
+          },
+          pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
         };
 
         // Generate PDF

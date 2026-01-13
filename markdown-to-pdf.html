@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Markdown to PDF Converter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Work+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    :root {
+      --ink-dark: #1a1a2e;
+      --ink-medium: #2d3748;
+      --paper-cream: #faf8f3;
+      --paper-white: #ffffff;
+      --accent-gold: #d4af37;
+      --accent-burgundy: #8b2635;
+      --border-light: #e2dfd9;
+      --text-muted: #6b7280;
+
+      --font-display: 'Cormorant Garamond', serif;
+      --font-body: 'Work Sans', sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: linear-gradient(135deg, var(--paper-cream) 0%, #fff 100%);
+      color: var(--ink-dark);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    .header {
+      background: var(--ink-dark);
+      color: var(--paper-cream);
+      padding: 2rem 1.5rem;
+      border-bottom: 3px solid var(--accent-gold);
+    }
+
+    .header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-family: var(--font-display);
+      font-size: 3rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+      line-height: 1.1;
+    }
+
+    .tagline {
+      font-size: 1.125rem;
+      color: var(--accent-gold);
+      font-weight: 300;
+      letter-spacing: 0.05em;
+    }
+
+    .main-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    .controls {
+      background: var(--paper-white);
+      border: 2px solid var(--border-light);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .control-group label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--ink-medium);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    select, input {
+      padding: 0.625rem;
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      font-family: var(--font-body);
+      font-size: 0.9375rem;
+      background: var(--paper-white);
+      transition: border-color 0.2s;
+    }
+
+    select:focus, input:focus {
+      outline: none;
+      border-color: var(--accent-gold);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 4px;
+      font-family: var(--font-body);
+      font-size: 0.9375rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .btn-primary {
+      background: var(--accent-burgundy);
+      color: var(--paper-white);
+      box-shadow: 0 2px 4px rgba(139,38,53,0.2);
+    }
+
+    .btn-primary:hover {
+      background: #6d1e29;
+      box-shadow: 0 4px 8px rgba(139,38,53,0.3);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: var(--paper-white);
+      color: var(--ink-dark);
+      border: 2px solid var(--ink-dark);
+    }
+
+    .btn-secondary:hover {
+      background: var(--ink-dark);
+      color: var(--paper-white);
+    }
+
+    .btn-tertiary {
+      background: var(--paper-cream);
+      color: var(--ink-medium);
+      border: 1px solid var(--border-light);
+    }
+
+    .btn-tertiary:hover {
+      background: var(--border-light);
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .panel {
+      background: var(--paper-white);
+      border: 2px solid var(--border-light);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .panel-header {
+      background: var(--ink-dark);
+      color: var(--paper-cream);
+      padding: 1rem 1.5rem;
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 600;
+      border-bottom: 2px solid var(--accent-gold);
+    }
+
+    .panel-content {
+      padding: 1.5rem;
+      height: 600px;
+      overflow-y: auto;
+    }
+
+    #markdown-input {
+      width: 100%;
+      height: 100%;
+      border: none;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9375rem;
+      line-height: 1.6;
+      resize: none;
+      background: var(--paper-cream);
+      color: var(--ink-dark);
+      padding: 1rem;
+    }
+
+    #markdown-input:focus {
+      outline: none;
+    }
+
+    #preview {
+      font-family: var(--font-body);
+      color: var(--ink-dark);
+    }
+
+    /* Markdown styling for preview */
+    #preview h1, #preview h2, #preview h3, #preview h4, #preview h5, #preview h6 {
+      font-family: var(--font-display);
+      font-weight: 600;
+      margin-top: 1.5em;
+      margin-bottom: 0.5em;
+      line-height: 1.3;
+    }
+
+    #preview h1 {
+      font-size: 2.5rem;
+      border-bottom: 3px solid var(--accent-gold);
+      padding-bottom: 0.3em;
+    }
+
+    #preview h2 {
+      font-size: 2rem;
+      border-bottom: 1px solid var(--border-light);
+      padding-bottom: 0.3em;
+    }
+
+    #preview h3 { font-size: 1.5rem; }
+    #preview h4 { font-size: 1.25rem; }
+
+    #preview p {
+      margin-bottom: 1em;
+    }
+
+    #preview a {
+      color: var(--accent-burgundy);
+      text-decoration: none;
+      border-bottom: 1px solid var(--accent-burgundy);
+    }
+
+    #preview a:hover {
+      color: var(--accent-gold);
+      border-bottom-color: var(--accent-gold);
+    }
+
+    #preview ul, #preview ol {
+      margin-left: 1.5em;
+      margin-bottom: 1em;
+    }
+
+    #preview li {
+      margin-bottom: 0.5em;
+    }
+
+    #preview code {
+      background: var(--paper-cream);
+      padding: 0.2em 0.4em;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.875em;
+      border: 1px solid var(--border-light);
+    }
+
+    #preview pre {
+      background: var(--ink-dark);
+      color: var(--paper-cream);
+      padding: 1rem;
+      border-radius: 4px;
+      overflow-x: auto;
+      margin-bottom: 1em;
+      border: 2px solid var(--accent-gold);
+    }
+
+    #preview pre code {
+      background: transparent;
+      padding: 0;
+      border: none;
+      color: var(--paper-cream);
+    }
+
+    #preview blockquote {
+      border-left: 4px solid var(--accent-gold);
+      padding-left: 1rem;
+      margin-left: 0;
+      margin-bottom: 1em;
+      font-style: italic;
+      color: var(--ink-medium);
+    }
+
+    #preview table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1em;
+    }
+
+    #preview th, #preview td {
+      border: 1px solid var(--border-light);
+      padding: 0.75rem;
+      text-align: left;
+    }
+
+    #preview th {
+      background: var(--ink-dark);
+      color: var(--paper-cream);
+      font-weight: 600;
+    }
+
+    #preview tr:nth-child(even) {
+      background: var(--paper-cream);
+    }
+
+    #preview img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+      margin: 1em 0;
+    }
+
+    #preview hr {
+      border: none;
+      border-top: 2px solid var(--accent-gold);
+      margin: 2em 0;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 2rem 1.5rem;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    .footer a {
+      color: var(--accent-burgundy);
+      text-decoration: none;
+    }
+
+    @media (max-width: 1024px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .panel-content {
+        height: 400px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      .header {
+        padding: 1.5rem 1rem;
+      }
+
+      .main-container {
+        padding: 1.5rem 1rem;
+      }
+
+      .controls-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .button-group {
+        flex-direction: column;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+
+    /* Loading indicator */
+    .loading {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--paper-white);
+      padding: 2rem 3rem;
+      border-radius: 8px;
+      border: 2px solid var(--accent-gold);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      color: var(--ink-dark);
+      z-index: 1000;
+      display: none;
+    }
+
+    .loading.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-content">
+      <h1>Markdown to PDF</h1>
+      <p class="tagline">Transform your markdown into beautiful print-ready documents</p>
+    </div>
+  </div>
+
+  <div class="main-container">
+    <div class="controls">
+      <div class="controls-grid">
+        <div class="control-group">
+          <label for="page-size">Page Size</label>
+          <select id="page-size">
+            <option value="a4">A4</option>
+            <option value="letter" selected>Letter</option>
+            <option value="legal">Legal</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="page-orientation">Orientation</label>
+          <select id="page-orientation">
+            <option value="portrait" selected>Portrait</option>
+            <option value="landscape">Landscape</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="filename">Filename</label>
+          <input type="text" id="filename" value="document" placeholder="document">
+        </div>
+      </div>
+      <div class="button-group">
+        <button class="btn-primary" id="generate-pdf">Generate PDF</button>
+        <button class="btn-secondary" id="load-sample">Load Sample</button>
+        <button class="btn-tertiary" id="clear-all">Clear All</button>
+      </div>
+    </div>
+
+    <div class="workspace">
+      <div class="panel">
+        <div class="panel-header">Markdown Editor</div>
+        <div class="panel-content">
+          <textarea id="markdown-input" placeholder="Enter your markdown here..."></textarea>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">Live Preview</div>
+        <div class="panel-content">
+          <div id="preview"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Part of <a href="https://tools.jasonvan.com">tools.jasonvan.com</a> collection</p>
+  </div>
+
+  <div class="loading" id="loading">Generating PDF...</div>
+
+  <script>
+    // Configuration
+    const STORAGE_KEY = 'markdownToPdf';
+
+    // State
+    let state = {
+      markdown: '',
+      pageSize: 'letter',
+      orientation: 'portrait',
+      filename: 'document'
+    };
+
+    // DOM elements
+    const markdownInput = document.getElementById('markdown-input');
+    const preview = document.getElementById('preview');
+    const generatePdfBtn = document.getElementById('generate-pdf');
+    const loadSampleBtn = document.getElementById('load-sample');
+    const clearAllBtn = document.getElementById('clear-all');
+    const pageSizeSelect = document.getElementById('page-size');
+    const pageOrientationSelect = document.getElementById('page-orientation');
+    const filenameInput = document.getElementById('filename');
+    const loading = document.getElementById('loading');
+
+    // Sample markdown template
+    const sampleMarkdown = `# My Document Title
+
+## Introduction
+
+This is a **sample document** to demonstrate the *Markdown to PDF* converter. You can write your content using standard Markdown syntax.
+
+## Features
+
+- Convert Markdown to PDF
+- Live preview as you type
+- Customizable page settings
+- Clean, professional output
+
+### Code Examples
+
+Here's a code snippet:
+
+\`\`\`javascript
+function greet(name) {
+  return \`Hello, \${name}!\`;
+}
+\`\`\`
+
+Inline code looks like this: \`const x = 42;\`
+
+## Lists
+
+### Unordered List
+- First item
+- Second item
+  - Nested item
+  - Another nested item
+- Third item
+
+### Ordered List
+1. First step
+2. Second step
+3. Third step
+
+## Blockquotes
+
+> "The best way to predict the future is to create it."
+> — Peter Drucker
+
+## Tables
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Markdown parsing | ✓ | Using marked.js |
+| PDF generation | ✓ | Using html2pdf.js |
+| Live preview | ✓ | Real-time rendering |
+
+## Links
+
+Visit [tools.jasonvan.com](https://tools.jasonvan.com) for more tools.
+
+---
+
+*Edit the markdown on the left to see changes in real-time!*
+`;
+
+    // Initialize
+    function init() {
+      loadFromStorage();
+      updatePreview();
+      attachEventListeners();
+    }
+
+    // Load state from localStorage
+    function loadFromStorage() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          state = { ...state, ...parsed };
+          markdownInput.value = state.markdown;
+          pageSizeSelect.value = state.pageSize;
+          pageOrientationSelect.value = state.orientation;
+          filenameInput.value = state.filename;
+        } catch (e) {
+          console.error('Failed to load from storage:', e);
+        }
+      }
+    }
+
+    // Save state to localStorage
+    function saveToStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        console.error('Failed to save to storage:', e);
+      }
+    }
+
+    // Update preview
+    function updatePreview() {
+      const markdown = markdownInput.value;
+      state.markdown = markdown;
+
+      try {
+        const html = marked.parse(markdown);
+        preview.innerHTML = html;
+      } catch (e) {
+        preview.innerHTML = `<p style="color: #8b2635;">Error parsing markdown: ${e.message}</p>`;
+      }
+
+      saveToStorage();
+    }
+
+    // Generate PDF
+    async function generatePdf() {
+      const markdown = markdownInput.value.trim();
+
+      if (!markdown) {
+        alert('Please enter some markdown content first.');
+        return;
+      }
+
+      loading.classList.add('active');
+
+      try {
+        // Parse markdown to HTML
+        const html = marked.parse(markdown);
+
+        // Create a temporary container with styling
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+        tempDiv.style.fontFamily = "'Work Sans', sans-serif";
+        tempDiv.style.color = '#1a1a2e';
+        tempDiv.style.padding = '40px';
+        tempDiv.style.lineHeight = '1.6';
+
+        // Apply heading styles
+        const headings = tempDiv.querySelectorAll('h1, h2, h3, h4, h5, h6');
+        headings.forEach(h => {
+          h.style.fontFamily = "'Cormorant Garamond', serif";
+          h.style.fontWeight = '600';
+          h.style.marginTop = '1.5em';
+          h.style.marginBottom = '0.5em';
+          h.style.lineHeight = '1.3';
+        });
+
+        const h1s = tempDiv.querySelectorAll('h1');
+        h1s.forEach(h => {
+          h.style.fontSize = '2.5rem';
+          h.style.borderBottom = '3px solid #d4af37';
+          h.style.paddingBottom = '0.3em';
+        });
+
+        const h2s = tempDiv.querySelectorAll('h2');
+        h2s.forEach(h => {
+          h.style.fontSize = '2rem';
+          h.style.borderBottom = '1px solid #e2dfd9';
+          h.style.paddingBottom = '0.3em';
+        });
+
+        // Apply other styles
+        const links = tempDiv.querySelectorAll('a');
+        links.forEach(a => {
+          a.style.color = '#8b2635';
+          a.style.textDecoration = 'none';
+        });
+
+        const codes = tempDiv.querySelectorAll('code');
+        codes.forEach(code => {
+          if (!code.parentElement.matches('pre')) {
+            code.style.background = '#faf8f3';
+            code.style.padding = '0.2em 0.4em';
+            code.style.borderRadius = '3px';
+            code.style.fontFamily = "'Courier New', monospace";
+            code.style.fontSize = '0.875em';
+            code.style.border = '1px solid #e2dfd9';
+          }
+        });
+
+        const pres = tempDiv.querySelectorAll('pre');
+        pres.forEach(pre => {
+          pre.style.background = '#1a1a2e';
+          pre.style.color = '#faf8f3';
+          pre.style.padding = '1rem';
+          pre.style.borderRadius = '4px';
+          pre.style.overflowX = 'auto';
+          pre.style.marginBottom = '1em';
+          pre.style.border = '2px solid #d4af37';
+        });
+
+        const blockquotes = tempDiv.querySelectorAll('blockquote');
+        blockquotes.forEach(bq => {
+          bq.style.borderLeft = '4px solid #d4af37';
+          bq.style.paddingLeft = '1rem';
+          bq.style.marginLeft = '0';
+          bq.style.marginBottom = '1em';
+          bq.style.fontStyle = 'italic';
+          bq.style.color = '#2d3748';
+        });
+
+        const tables = tempDiv.querySelectorAll('table');
+        tables.forEach(table => {
+          table.style.width = '100%';
+          table.style.borderCollapse = 'collapse';
+          table.style.marginBottom = '1em';
+
+          const ths = table.querySelectorAll('th');
+          ths.forEach(th => {
+            th.style.background = '#1a1a2e';
+            th.style.color = '#faf8f3';
+            th.style.padding = '0.75rem';
+            th.style.textAlign = 'left';
+            th.style.border = '1px solid #e2dfd9';
+            th.style.fontWeight = '600';
+          });
+
+          const tds = table.querySelectorAll('td');
+          tds.forEach(td => {
+            td.style.padding = '0.75rem';
+            td.style.border = '1px solid #e2dfd9';
+          });
+        });
+
+        // Configure PDF options
+        const filename = (filenameInput.value || 'document').trim();
+        const opt = {
+          margin: [15, 15, 15, 15],
+          filename: `${filename}.pdf`,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true },
+          jsPDF: {
+            unit: 'mm',
+            format: state.pageSize,
+            orientation: state.orientation
+          }
+        };
+
+        // Generate PDF
+        await html2pdf().set(opt).from(tempDiv).save();
+
+        loading.classList.remove('active');
+      } catch (e) {
+        loading.classList.remove('active');
+        alert(`Error generating PDF: ${e.message}`);
+        console.error('PDF generation error:', e);
+      }
+    }
+
+    // Load sample markdown
+    function loadSample() {
+      if (markdownInput.value.trim() && !confirm('This will replace your current content. Continue?')) {
+        return;
+      }
+      markdownInput.value = sampleMarkdown;
+      updatePreview();
+    }
+
+    // Clear all content
+    function clearAll() {
+      if (markdownInput.value.trim() && !confirm('Are you sure you want to clear all content?')) {
+        return;
+      }
+      markdownInput.value = '';
+      state.markdown = '';
+      updatePreview();
+    }
+
+    // Event listeners
+    function attachEventListeners() {
+      markdownInput.addEventListener('input', updatePreview);
+      generatePdfBtn.addEventListener('click', generatePdf);
+      loadSampleBtn.addEventListener('click', loadSample);
+      clearAllBtn.addEventListener('click', clearAll);
+
+      pageSizeSelect.addEventListener('change', (e) => {
+        state.pageSize = e.target.value;
+        saveToStorage();
+      });
+
+      pageOrientationSelect.addEventListener('change', (e) => {
+        state.orientation = e.target.value;
+        saveToStorage();
+      });
+
+      filenameInput.addEventListener('input', (e) => {
+        state.filename = e.target.value;
+        saveToStorage();
+      });
+    }
+
+    // Start the application
+    init();
+  </script>
+</body>
+</html>

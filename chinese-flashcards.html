@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chinese Flashcards — 漢字練習</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+  <style>
+    /* ==================== CSS VARIABLES ==================== */
+    :root {
+      --rice:       #f5f0e8;
+      --rice-dark:  #ede5d4;
+      --rice-line:  #ddd5c0;
+      --ink:        #1a1410;
+      --ink-soft:   #3d2f22;
+      --ink-muted:  #7a6b5a;
+      --vermillion: #c0392b;
+      --verm-dark:  #962d22;
+      --verm-light: #e05040;
+      --gold:       #b8860b;
+      --gold-light: #d4a017;
+
+      --btn-again:  #c0392b;
+      --btn-hard:   #e07b20;
+      --btn-good:   #27ae60;
+      --btn-easy:   #2980b9;
+
+      --font-char:  'Ma Shan Zheng', cursive;
+      --font-body:  'Lora', serif;
+
+      --shadow-sm:  0 2px 8px rgba(26,20,16,0.10);
+      --shadow-md:  0 4px 20px rgba(26,20,16,0.14);
+      --shadow-lg:  0 8px 40px rgba(26,20,16,0.18);
+    }
+
+    /* ==================== RESET ==================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-family: var(--font-body); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+
+    body {
+      min-height: 100vh;
+      background: var(--rice);
+      color: var(--ink);
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Rice paper grain texture */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: repeating-radial-gradient(circle at 20% 30%, rgba(180,150,100,0.04) 0, transparent 3px),
+                        repeating-radial-gradient(circle at 80% 70%, rgba(150,120,80,0.03) 0, transparent 4px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .hidden { display: none !important; }
+
+    /* ==================== LAYOUT ==================== */
+    .page { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 0 1.5rem 4rem; }
+
+    /* ==================== HEADER ==================== */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem 0 1rem;
+      border-bottom: 2px solid var(--ink);
+      margin-bottom: 2.5rem;
+    }
+
+    .header-title {
+      font-family: var(--font-char);
+      font-size: 2rem;
+      color: var(--ink);
+      letter-spacing: 0.1em;
+    }
+
+    .header-title span {
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-style: italic;
+      color: var(--ink-muted);
+      margin-left: 0.75rem;
+      letter-spacing: 0;
+    }
+
+    .btn-icon {
+      background: none;
+      border: 1.5px solid var(--ink);
+      color: var(--ink);
+      width: 40px;
+      height: 40px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-icon:hover { background: var(--ink); color: var(--rice); }
+
+    /* ==================== DASHBOARD ==================== */
+    #screen-dashboard {}
+
+    .dash-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: #fff;
+      border: 1.5px solid var(--ink);
+      border-radius: 6px;
+      padding: 1.25rem 1rem;
+      text-align: center;
+      box-shadow: 3px 3px 0 var(--ink);
+      animation: fadeInUp 0.4s ease both;
+    }
+
+    .stat-card:nth-child(2) { animation-delay: 0.07s; }
+    .stat-card:nth-child(3) { animation-delay: 0.14s; }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--vermillion);
+      line-height: 1;
+      font-family: var(--font-body);
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--ink-muted);
+      margin-top: 0.3rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .btn-begin {
+      display: block;
+      width: 100%;
+      padding: 1.1rem 2rem;
+      background: var(--vermillion);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-family: var(--font-body);
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 4px 4px 0 var(--verm-dark);
+      transition: transform 0.1s, box-shadow 0.1s;
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.05em;
+    }
+
+    .btn-begin:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 var(--verm-dark); }
+    .btn-begin:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--verm-dark); }
+
+    .dash-streak {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 1rem 1.25rem;
+      background: var(--rice-dark);
+      border: 1.5px solid var(--rice-line);
+      border-radius: 6px;
+      margin-bottom: 1.5rem;
+      animation: fadeInUp 0.4s 0.2s ease both;
+    }
+
+    .streak-fire { font-size: 1.8rem; }
+    .streak-text { flex: 1; }
+    .streak-count { font-size: 1.3rem; font-weight: 700; color: var(--gold); }
+    .streak-sub { font-size: 0.8rem; color: var(--ink-muted); }
+
+    .dash-info {
+      font-size: 0.85rem;
+      color: var(--ink-muted);
+      text-align: center;
+      font-style: italic;
+      animation: fadeInUp 0.4s 0.28s ease both;
+    }
+
+    /* ==================== STUDY SCREEN ==================== */
+    #screen-study { }
+
+    .study-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    .study-progress-wrap {
+      flex: 1;
+      margin: 0 1rem;
+    }
+
+    .study-progress-bar {
+      height: 6px;
+      background: var(--rice-line);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .study-progress-fill {
+      height: 100%;
+      background: var(--vermillion);
+      border-radius: 3px;
+      transition: width 0.3s ease;
+    }
+
+    .study-count {
+      font-size: 0.8rem;
+      color: var(--ink-muted);
+      margin-top: 0.35rem;
+      text-align: center;
+    }
+
+    .btn-back {
+      background: none;
+      border: 1.5px solid var(--ink);
+      color: var(--ink);
+      padding: 0.4rem 0.9rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      transition: background 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+    .btn-back:hover { background: var(--ink); color: var(--rice); }
+
+    /* ==================== FLASHCARD ==================== */
+    .card-scene {
+      perspective: 1000px;
+      margin-bottom: 1.5rem;
+    }
+
+    .card-3d {
+      width: 100%;
+      min-height: 340px;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.5s ease-in-out;
+      cursor: pointer;
+    }
+
+    .card-3d.flipped { transform: rotateY(180deg); }
+
+    .card-face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border: 2px solid var(--ink);
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .card-face-back {
+      transform: rotateY(180deg);
+      justify-content: flex-start;
+      padding: 2rem 2.5rem;
+    }
+
+    .card-char {
+      font-family: var(--font-char);
+      font-size: clamp(5rem, 18vw, 9rem);
+      color: var(--ink);
+      line-height: 1;
+      user-select: none;
+      transition: color 0.2s;
+    }
+
+    .card-hint {
+      font-size: 0.8rem;
+      color: var(--ink-muted);
+      font-style: italic;
+      margin-top: 2rem;
+    }
+
+    .card-pinyin-front {
+      font-size: 1.5rem;
+      color: var(--gold);
+      margin-top: 0.5rem;
+      font-style: italic;
+    }
+
+    .back-char {
+      font-family: var(--font-char);
+      font-size: clamp(3rem, 10vw, 5rem);
+      color: var(--ink);
+      margin-bottom: 0.5rem;
+      align-self: center;
+    }
+
+    .back-pinyin {
+      font-size: 1.5rem;
+      color: var(--gold);
+      font-style: italic;
+      margin-bottom: 1rem;
+      align-self: center;
+    }
+
+    .back-divider {
+      width: 80%;
+      height: 1.5px;
+      background: var(--rice-line);
+      margin: 0.75rem auto 1rem;
+    }
+
+    .back-meaning {
+      font-size: 1.25rem;
+      color: var(--ink-soft);
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .back-extra {
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      color: var(--ink-muted);
+      text-align: center;
+      font-style: italic;
+    }
+
+    /* ==================== RATING BUTTONS ==================== */
+    .rating-area { }
+
+    .btn-show {
+      display: block;
+      width: 100%;
+      padding: 0.9rem;
+      background: none;
+      border: 2px solid var(--ink);
+      border-radius: 6px;
+      font-family: var(--font-body);
+      font-size: 1rem;
+      cursor: pointer;
+      color: var(--ink);
+      transition: background 0.15s, color 0.15s;
+      margin-bottom: 1rem;
+    }
+    .btn-show:hover { background: var(--ink); color: var(--rice); }
+
+    .rating-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+    }
+
+    .btn-rate {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0.75rem 0.5rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: var(--font-body);
+      transition: transform 0.1s, opacity 0.15s;
+      color: #fff;
+    }
+
+    .btn-rate:hover { transform: translateY(-2px); opacity: 0.92; }
+    .btn-rate:active { transform: translateY(1px); }
+
+    .btn-rate.again { background: var(--btn-again); }
+    .btn-rate.hard  { background: var(--btn-hard); }
+    .btn-rate.good  { background: var(--btn-good); }
+    .btn-rate.easy  { background: var(--btn-easy); }
+
+    .rate-label { font-size: 0.95rem; font-weight: 600; }
+    .rate-interval { font-size: 0.72rem; opacity: 0.85; margin-top: 0.2rem; }
+
+    /* ==================== SUMMARY SCREEN ==================== */
+    #screen-summary { text-align: center; }
+
+    .summary-title {
+      font-family: var(--font-char);
+      font-size: 2.5rem;
+      color: var(--vermillion);
+      margin-bottom: 0.5rem;
+    }
+
+    .summary-sub {
+      font-size: 1rem;
+      color: var(--ink-muted);
+      font-style: italic;
+      margin-bottom: 2rem;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      max-width: 480px;
+      margin: 0 auto 2rem;
+    }
+
+    .summary-stat {
+      background: #fff;
+      border: 1.5px solid var(--ink);
+      border-radius: 6px;
+      padding: 1.25rem;
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+
+    .summary-stat .stat-number { font-size: 2rem; }
+
+    .btn-done {
+      display: inline-block;
+      padding: 0.9rem 2.5rem;
+      background: var(--vermillion);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-family: var(--font-body);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 3px 3px 0 var(--verm-dark);
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .btn-done:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 var(--verm-dark); }
+
+    /* ==================== SETTINGS PANEL ==================== */
+    .settings-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(26,20,16,0.35);
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .settings-overlay.open { opacity: 1; pointer-events: auto; }
+
+    .settings-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: min(400px, 100vw);
+      height: 100vh;
+      background: var(--rice);
+      border-left: 2px solid var(--ink);
+      z-index: 101;
+      padding: 2rem 1.5rem;
+      overflow-y: auto;
+      transform: translateX(100%);
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .settings-overlay.open .settings-panel { transform: translateX(0); }
+
+    .settings-title {
+      font-family: var(--font-char);
+      font-size: 1.6rem;
+      color: var(--ink);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .settings-section { margin-bottom: 1.5rem; }
+    .settings-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ink-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--rice-line);
+    }
+
+    .settings-row:last-child { border-bottom: none; }
+    .settings-row-label { font-size: 0.9rem; color: var(--ink-soft); }
+
+    input[type="number"].settings-input {
+      width: 70px;
+      padding: 0.3rem 0.5rem;
+      border: 1.5px solid var(--ink);
+      border-radius: 4px;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      background: #fff;
+      text-align: center;
+    }
+
+    .toggle {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      background: var(--rice-line);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+      border: none;
+      flex-shrink: 0;
+    }
+
+    .toggle.on { background: var(--vermillion); }
+    .toggle::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      transition: left 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .toggle.on::after { left: 23px; }
+
+    .btn-action {
+      display: block;
+      width: 100%;
+      padding: 0.7rem;
+      border: 1.5px solid var(--ink);
+      border-radius: 4px;
+      background: none;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      color: var(--ink);
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn-action:hover { background: var(--ink); color: var(--rice); }
+    .btn-action.danger { border-color: var(--vermillion); color: var(--vermillion); }
+    .btn-action.danger:hover { background: var(--vermillion); color: #fff; }
+
+    /* ==================== KEYBOARD HINT ==================== */
+    .kbd-hint {
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--ink-muted);
+      margin-top: 1rem;
+      font-style: italic;
+    }
+
+    kbd {
+      font-family: var(--font-body);
+      font-style: normal;
+      background: var(--rice-dark);
+      border: 1px solid var(--rice-line);
+      border-radius: 3px;
+      padding: 0.1em 0.4em;
+      font-size: 0.85em;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 480px) {
+      .dash-stats { grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+      .stat-number { font-size: 1.8rem; }
+      .rating-grid { gap: 0.4rem; }
+      .btn-rate { padding: 0.6rem 0.3rem; }
+      .rate-label { font-size: 0.85rem; }
+      .card-face { padding: 1.5rem; }
+      .summary-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (min-width: 640px) {
+      .page { padding: 0 2.5rem 4rem; }
+      .header-title { font-size: 2.4rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+  <!-- ====== HEADER ====== -->
+  <header class="header">
+    <div class="header-title">漢字練習 <span>Chinese Flashcards</span></div>
+    <button class="btn-icon" id="btn-settings" title="Settings" aria-label="Settings">⚙</button>
+  </header>
+
+  <!-- ====== DASHBOARD ====== -->
+  <section id="screen-dashboard">
+    <div class="dash-stats">
+      <div class="stat-card">
+        <div class="stat-number" id="stat-due">0</div>
+        <div class="stat-label">Cards Due</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="stat-learned">0</div>
+        <div class="stat-label">Learned</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="stat-total">500</div>
+        <div class="stat-label">Total</div>
+      </div>
+    </div>
+
+    <div class="dash-streak">
+      <div class="streak-fire">&#x1F525;</div>
+      <div class="streak-text">
+        <div class="streak-count" id="streak-count">0 day streak</div>
+        <div class="streak-sub" id="streak-longest">Longest: 0 days</div>
+      </div>
+    </div>
+
+    <button class="btn-begin" id="btn-begin">開始學習 &nbsp; Begin Study</button>
+    <p class="dash-info" id="dash-info">Loading…</p>
+  </section>
+
+  <!-- ====== STUDY SCREEN ====== -->
+  <section id="screen-study" class="hidden">
+    <div class="study-header">
+      <button class="btn-back" id="btn-back">← Back</button>
+      <div class="study-progress-wrap">
+        <div class="study-progress-bar">
+          <div class="study-progress-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+        <div class="study-count" id="study-count">0 / 0</div>
+      </div>
+    </div>
+
+    <div class="card-scene">
+      <div class="card-3d" id="card-3d">
+        <!-- Front -->
+        <div class="card-face card-face-front">
+          <div class="card-char" id="card-char-front">一</div>
+          <div class="card-pinyin-front hidden" id="card-pinyin-front">yī</div>
+          <div class="card-hint">Click card or press Space to reveal</div>
+        </div>
+        <!-- Back -->
+        <div class="card-face card-face-back">
+          <div class="back-char" id="card-char-back">一</div>
+          <div class="back-pinyin" id="card-pinyin-back">yī</div>
+          <div class="back-divider"></div>
+          <div class="back-meaning" id="card-meaning">one</div>
+          <div class="back-extra" id="card-extra"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rating-area">
+      <button class="btn-show" id="btn-show">顯示答案 &nbsp; Show Answer</button>
+      <div class="rating-grid hidden" id="rating-grid">
+        <button class="btn-rate again" data-rating="1">
+          <span class="rate-label">Again</span>
+          <span class="rate-interval" id="int-again">1d</span>
+        </button>
+        <button class="btn-rate hard" data-rating="2">
+          <span class="rate-label">Hard</span>
+          <span class="rate-interval" id="int-hard">–</span>
+        </button>
+        <button class="btn-rate good" data-rating="3">
+          <span class="rate-label">Good</span>
+          <span class="rate-interval" id="int-good">–</span>
+        </button>
+        <button class="btn-rate easy" data-rating="4">
+          <span class="rate-label">Easy</span>
+          <span class="rate-interval" id="int-easy">–</span>
+        </button>
+      </div>
+    </div>
+
+    <p class="kbd-hint">
+      <kbd>Space</kbd> flip &nbsp;·&nbsp; <kbd>1</kbd>–<kbd>4</kbd> rate &nbsp;·&nbsp; <kbd>Esc</kbd> back
+    </p>
+  </section>
+
+  <!-- ====== SUMMARY SCREEN ====== -->
+  <section id="screen-summary" class="hidden">
+    <div class="summary-title">完成了！</div>
+    <div class="summary-sub">Session complete</div>
+    <div class="summary-grid">
+      <div class="summary-stat stat-card">
+        <div class="stat-number" id="sum-reviewed">0</div>
+        <div class="stat-label">Reviewed</div>
+      </div>
+      <div class="summary-stat stat-card">
+        <div class="stat-number" id="sum-new">0</div>
+        <div class="stat-label">New Today</div>
+      </div>
+      <div class="summary-stat stat-card">
+        <div class="stat-number" id="sum-correct">0%</div>
+        <div class="stat-label">Accuracy</div>
+      </div>
+      <div class="summary-stat stat-card">
+        <div class="stat-number" id="sum-next">–</div>
+        <div class="stat-label">Next Due</div>
+      </div>
+    </div>
+    <button class="btn-done" id="btn-done">← Dashboard</button>
+  </section>
+</div>
+
+<!-- ====== SETTINGS PANEL ====== -->
+<div class="settings-overlay" id="settings-overlay">
+  <div class="settings-panel">
+    <div class="settings-title">
+      設定 Settings
+      <button class="btn-icon" id="btn-close-settings" aria-label="Close">✕</button>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-label">Study</div>
+      <div class="settings-row">
+        <span class="settings-row-label">New cards per day</span>
+        <input type="number" class="settings-input" id="set-new-per-day" min="1" max="100" value="20">
+      </div>
+      <div class="settings-row">
+        <span class="settings-row-label">Show pinyin on front</span>
+        <button class="toggle" id="toggle-pinyin" role="switch" aria-checked="true"></button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-label">Data</div>
+      <button class="btn-action" id="btn-export">Export progress (JSON)</button>
+      <button class="btn-action" id="btn-import">Import progress (JSON)</button>
+      <input type="file" id="file-import" accept=".json" style="display:none">
+      <button class="btn-action danger" id="btn-reset">Reset all progress</button>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-label">Info</div>
+      <p style="font-size:0.82rem; color:var(--ink-muted); line-height:1.7;">
+        SM-2 spaced repetition algorithm.<br>
+        500 traditional Chinese characters.<br>
+        All data stored locally in your browser.<br>
+        localStorage key: <code>chineseFlashcards</code>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== CHARACTER DATA ====================
+// Format: [traditional, pinyin, english]
+const CHARS = [
+  ["一","yī","one"],["二","èr","two"],["三","sān","three"],["四","sì","four"],["五","wǔ","five"],
+  ["六","liù","six"],["七","qī","seven"],["八","bā","eight"],["九","jiǔ","nine"],["十","shí","ten"],
+  ["百","bǎi","hundred"],["千","qiān","thousand"],["萬","wàn","ten thousand"],["零","líng","zero; remainder"],
+  ["人","rén","person; people"],["大","dà","big; great"],["小","xiǎo","small; little"],
+  ["中","zhōng","middle; China"],["上","shàng","above; up; on"],["下","xià","below; down; under"],
+  ["來","lái","to come"],["去","qù","to go"],["不","bù","no; not"],["是","shì","to be; yes"],
+  ["有","yǒu","to have; there is"],["在","zài","at; in; to be present"],["我","wǒ","I; me"],
+  ["你","nǐ","you"],["他","tā","he; him"],["她","tā","she; her"],["它","tā","it"],
+  ["們","men","plural suffix"],["這","zhè","this"],["那","nà","that"],["什","shén","what (in 什麼)"],
+  ["麼","me","suffix particle"],["好","hǎo","good; well"],["很","hěn","very"],
+  ["也","yě","also; too"],["都","dōu","all; both"],["就","jiù","just; then; already"],
+  ["說","shuō","to speak; to say"],["看","kàn","to look; to see"],["想","xiǎng","to think; to want"],
+  ["知","zhī","to know"],["道","dào","road; way; Tao"],["得","de / dé","obtain; structural particle"],
+  ["個","gè","(measure word); individual"],["了","le / liǎo","completed action; to finish"],
+  ["和","hé","and; with; peace"],["的","de","possessive particle"],["地","de / dì","adverbial particle; earth"],
+  ["時","shí","time; season"],["候","hòu","to wait; time"],["年","nián","year"],
+  ["月","yuè","month; moon"],["日","rì","day; sun"],["今","jīn","today; now"],
+  ["明","míng","bright; clear; tomorrow"],["天","tiān","sky; day; heaven"],
+  ["可","kě","can; may"],["以","yǐ","by; with; in order to"],
+  ["會","huì","can; will; to meet"],["要","yào","want; need; important"],
+  ["用","yòng","to use"],["做","zuò","to do; to make"],["為","wéi / wèi","for; to be; because"],
+  ["而","ér","and yet; but; however"],["如","rú","as; like; if"],
+  ["果","guǒ","fruit; result"],["然","rán","so; like that"],["後","hòu","after; behind; later"],
+  ["前","qián","front; before; former"],["對","duì","correct; towards; pair"],
+  ["與","yǔ","and; with; to give"],["子","zǐ","child; son; master"],
+  ["女","nǚ","female; woman; daughter"],["男","nán","male; man"],
+  ["父","fù","father"],["母","mǔ","mother"],["兄","xiōng","elder brother"],
+  ["弟","dì","younger brother"],["姐","jiě","elder sister"],["妹","mèi","younger sister"],
+  ["朋","péng","friend"],["友","yǒu","friend"],["家","jiā","home; family"],
+  ["國","guó","country; nation"],["中國","zhōngguó","China"],["美","měi","beautiful; America"],
+  ["英","yīng","hero; Britain"],["語","yǔ","language; speech"],["文","wén","script; language; culture"],
+  ["字","zì","character; word"],["話","huà","speech; words; dialect"],
+  ["書","shū","book; letter"],["學","xué","to study; to learn"],["生","shēng","born; life; raw"],
+  ["老","lǎo","old"],["師","shī","teacher"],["學生","xuéshēng","student"],
+  ["老師","lǎoshī","teacher"],["學校","xuéxiào","school"],
+  ["學習","xuéxí","to study; to learn"],["教","jiāo","to teach"],["育","yù","to raise; education"],
+  ["問","wèn","to ask"],["答","dá","to answer; reply"],["題","tí","topic; problem"],
+  ["工","gōng","work; worker; craft"],["作","zuò","to work; to make"],
+  ["公","gōng","public; fair"],["司","sī","to manage; company"],
+  ["錢","qián","money"],["買","mǎi","to buy"],["賣","mài","to sell"],
+  ["吃","chī","to eat"],["喝","hē","to drink"],["飯","fàn","rice; meal; cooked food"],
+  ["水","shuǐ","water"],["茶","chá","tea"],["酒","jiǔ","alcohol; wine"],
+  ["咖","kā","coffee (in 咖啡)"],["啡","fēi","coffee (in 咖啡)"],
+  ["肉","ròu","meat; flesh"],["魚","yú","fish"],["蔬","shū","vegetables"],
+  ["菜","cài","vegetable; dish"],["米","mǐ","rice; meter"],["麵","miàn","noodles; wheat flour"],
+  ["店","diàn","store; shop"],["餐","cān","meal; restaurant"],
+  ["路","lù","road; path"],["車","chē","vehicle; car"],["行","xíng","to go; to walk; OK"],
+  ["走","zǒu","to walk; to go"],["跑","pǎo","to run"],["飛","fēi","to fly"],
+  ["機","jī","machine; chance"],["船","chuán","boat; ship"],
+  ["門","mén","door; gate"],["窗","chuāng","window"],["房","fáng","house; room"],
+  ["間","jiān","between; room (measure)"],["廁","cè","toilet"],
+  ["地","dì","earth; ground; place"],["方","fāng","direction; place; square"],
+  ["東","dōng","east"],["西","xī","west"],["南","nán","south"],["北","běi","north"],
+  ["左","zuǒ","left"],["右","yòu","right"],["裡","lǐ","inside"],["外","wài","outside"],
+  ["高","gāo","high; tall"],["低","dī","low; to lower"],["長","cháng","long; length"],
+  ["短","duǎn","short (length)"],["新","xīn","new"],["舊","jiù","old; used"],
+  ["多","duō","many; much"],["少","shǎo","few; little; young"],
+  ["快","kuài","fast; quick"],["慢","màn","slow"],
+  ["遠","yuǎn","far; distant"],["近","jìn","near; recent"],
+  ["冷","lěng","cold"],["熱","rè","hot"],["暖","nuǎn","warm"],
+  ["晴","qíng","sunny; clear"],["雨","yǔ","rain"],["雪","xuě","snow"],
+  ["風","fēng","wind"],["氣","qì","air; spirit; breath"],
+  ["白","bái","white"],["黑","hēi","black"],["紅","hóng","red"],
+  ["藍","lán","blue"],["綠","lǜ","green"],["黃","huáng","yellow"],
+  ["手","shǒu","hand"],["腳","jiǎo","foot; leg"],["頭","tóu","head"],
+  ["眼","yǎn","eye"],["耳","ěr","ear"],["口","kǒu","mouth; opening"],
+  ["鼻","bí","nose"],["心","xīn","heart; mind"],["身","shēn","body; self"],
+  ["力","lì","strength; force"],["能","néng","can; able"],["把","bǎ","to hold; handle; (particle)"],
+  ["被","bèi","passive marker; quilt"],["讓","ràng","to let; to allow; to yield"],
+  ["叫","jiào","to call; to be called; to shout"],["名","míng","name; famous"],
+  ["事","shì","matter; affair; thing"],["情","qíng","emotion; love; situation"],
+  ["意","yì","intention; meaning"],["思","sī","to think; thought"],
+  ["感","gǎn","to feel; sense"],["覺","jué","to feel; sense; awaken"],
+  ["笑","xiào","to smile; to laugh"],["哭","kū","to cry; to weep"],
+  ["喜","xǐ","to like; happy"],["歡","huān","joyful"],
+  ["怒","nù","anger; furious"],["愁","chóu","sorrow; grief"],
+  ["愛","ài","to love; love"],["恨","hèn","to hate; hatred"],
+  ["怕","pà","to fear; afraid"],["危","wēi","danger; precarious"],
+  ["難","nán","difficult; hard"],["易","yì","easy; change"],
+  ["重","zhòng / chóng","heavy; important; again"],["輕","qīng","light; gentle"],
+  ["病","bìng","illness; sick"],["醫","yī","medicine; doctor"],
+  ["藥","yào","medicine; drug"],["休","xiū","to rest"],["息","xī","to rest; breath; news"],
+  ["睡","shuì","to sleep"],["覺","jiào","sleep (in 睡覺)"],
+  ["起","qǐ","to rise; to get up"],["床","chuáng","bed"],
+  ["衣","yī","clothing"],["服","fú","clothing; to serve; to take (medicine)"],
+  ["穿","chuān","to wear; to pass through"],["帶","dài","belt; to bring; to lead"],
+  ["鞋","xié","shoe"],["帽","mào","hat; cap"],["包","bāo","bag; to wrap; bun"],
+  ["鐘","zhōng","clock; bell"],["表","biǎo","watch; form; to express"],
+  ["早","zǎo","early; morning"],["晚","wǎn","late; evening"],
+  ["午","wǔ","noon; midday"],["夜","yè","night"],
+  ["第","dì","ordinal prefix (No.)"],["次","cì","time; order; second"],
+  ["每","měi","every; each"],["再","zài","again; once more"],
+  ["還","hái","still; also; yet"],["已","yǐ","already"],["經","jīng","to pass; classic"],
+  ["當","dāng","to serve as; just at"],["正","zhèng","straight; correct; just"],
+  ["只","zhǐ","only; just"],["雖","suī","although; even though"],
+  ["但","dàn","but; however"],["因","yīn","because; due to"],["所","suǒ","place; so"],
+  ["著","zhe","aspect particle (ongoing)"],["過","guò","to pass; (past action particle)"],
+  ["起","qǐ","to rise; start"],["來","lái","directional complement"],
+  ["進","jìn","to enter; to advance"],["出","chū","to exit; to produce"],
+  ["開","kāi","to open; to start"],["關","guān","to close; to turn off; relation"],
+  ["送","sòng","to send; to give (gift)"],["接","jiē","to receive; to connect"],
+  ["打","dǎ","to hit; to play (sports); to make (a call)"],
+  ["電","diàn","electricity; lightning"],["話","huà","speech; language"],
+  ["網","wǎng","net; internet"],["絡","luò","net; to wind"],
+  ["電腦","diànnǎo","computer"],["手機","shǒujī","mobile phone"],
+  ["音","yīn","sound; music"],["樂","yuè / lè","music; happy"],
+  ["歌","gē","song"],["唱","chàng","to sing"],
+  ["畫","huà","to draw; painting"],["照","zhào","to shine; photo"],
+  ["片","piān / piàn","slice; film"],["相","xiàng","appearance; photo; mutual"],
+  ["公","gōng","park (公園)"],["園","yuán","garden; park"],
+  ["市","shì","city; market"],["城","chéng","city; town; wall"],
+  ["村","cūn","village"],["山","shān","mountain"],["海","hǎi","sea; ocean"],
+  ["河","hé","river"],["湖","hú","lake"],["島","dǎo","island"],
+  ["樹","shù","tree"],["花","huā","flower"],["草","cǎo","grass; straw"],
+  ["動","dòng","to move; animal"],["物","wù","thing; creature"],
+  ["貓","māo","cat"],["狗","gǒu","dog"],["馬","mǎ","horse"],["鳥","niǎo","bird"],
+  ["魚","yú","fish"],["牛","niú","cow; ox"],["豬","zhū","pig"],
+  ["點","diǎn","point; dot; a little; o'clock"],["種","zhǒng","type; seed; to plant"],
+  ["樣","yàng","appearance; type; way"],["比","bǐ","to compare; ratio"],
+  ["最","zuì","most; -est"],["更","gèng","even more; still more"],
+  ["太","tài","too; excessively"],["非","fēi","not; wrong; Africa"],
+  ["特","tè","special; especially"],["別","bié","other; don't; to separate"],
+  ["其","qí","his/her/its/their (literary)"],["他","tā","other; another (literary)"],
+  ["此","cǐ","this (literary)"],["之","zhī","of; it (literary)"],
+  ["於","yú","at; in; from (literary)"],["等","děng","to wait; etc."],
+  ["向","xiàng","towards; direction"],["按","àn","to press; according to"],
+  ["通","tōng","through; to communicate"],["過","guò","to pass; through"],
+  ["從","cóng","from; since; to follow"],["到","dào","to arrive; to; until"],
+  ["給","gěi","to give; for"],["讓","ràng","to let; to yield"],
+  ["幫","bāng","to help"],["助","zhù","to help"],["求","qiú","to seek; to request"],
+  ["找","zhǎo","to look for; to find"],["拿","ná","to take; to hold"],
+  ["放","fàng","to put; to release; to let go"],["立","lì","to stand; to establish"],
+  ["坐","zuò","to sit"],["站","zhàn","to stand; station"],
+  ["喂","wèi","hello (phone); to feed"],
+  ["再見","zàijiàn","goodbye; see you again"],["謝謝","xièxie","thank you"],
+  ["對不起","duìbuqǐ","sorry; I'm sorry"],["沒關係","méiguānxi","it's OK; no problem"],
+  ["請","qǐng","please; to invite"],["客氣","kèqì","polite; courtesy"],
+  ["借","jiè","to lend; to borrow"],["還","huán","to return (something)"],
+  ["改","gǎi","to change; to correct"],["變","biàn","to change; to become"],
+  ["加","jiā","to add; to increase"],["減","jiǎn","to subtract; to decrease"],
+  ["多","duō","more; many (before verbs: please do more)"],
+  ["少","shǎo","less; few (before verbs: please do less)"],
+  ["分","fēn","minute; to divide; fraction"],["鐘","zhōng","clock; minute"],
+  ["半","bàn","half"],["刻","kè","a quarter hour; to carve"],
+  ["小時","xiǎoshí","hour"],["星期","xīngqī","week"],["週","zhōu","week; cycle"],
+  ["春","chūn","spring"],["夏","xià","summer"],["秋","qiū","autumn; fall"],
+  ["冬","dōng","winter"],["季","jì","season"],["節","jié","festival; section"],
+  ["假","jià","holiday; vacation; false"],["期","qī","period; term; to expect"],
+  ["號","hào","number; date; name"],["歲","suì","year of age"],["齡","líng","age"],
+  ["結","jié","to tie; to form; to end"],["婚","hūn","marriage; to marry"],
+  ["孩","hái","child"],["嬰","yīng","infant; baby"],["老人","lǎorén","elderly person"],
+  ["大家","dàjiā","everybody"],["自己","zìjǐ","oneself"],["彼此","bǐcǐ","each other"],
+  ["一起","yīqǐ","together"],["一定","yīdìng","certainly; must; fixed"],
+  ["一般","yībān","general; ordinary; the same"],
+  ["可以","kěyǐ","can; may; OK"],["應該","yīnggāi","should; ought to"],
+  ["必須","bìxū","must; have to"],["需要","xīyào","need; require"],
+  ["喜歡","xǐhuān","to like; to enjoy"],["討厭","tǎoyàn","to dislike; annoying"],
+  ["明白","míngbai","to understand; clear"],["清楚","qīngchǔ","clear; clearly"],
+  ["準備","zhǔnbèi","to prepare; ready"],["開始","kāishǐ","to begin; start"],
+  ["結束","jiéshù","to end; finish"],["繼續","jìxù","to continue"],
+  ["停","tíng","to stop"],["完","wán","to finish; complete"],
+  ["到了","dào le","arrived; it's time"],["好了","hǎo le","OK; done; alright"],
+  ["哪","nǎ","which"],["哪裡","nǎlǐ","where"],["誰","shéi","who"],
+  ["什麼","shénme","what"],["為什麼","wèishénme","why"],["怎麼","zěnme","how"],
+  ["多少","duōshǎo","how many; how much"],["幾","jǐ","how many; several"],
+  ["幫助","bāngzhù","to help; assistance"],["支持","zhīchí","to support"],
+  ["反對","fǎnduì","to oppose; opposition"],["同意","tóngyì","to agree"],
+  ["決定","juédìng","to decide; decision"],["計劃","jìhuà","plan; to plan"],
+  ["辦法","bànfǎ","way; method"],["解決","jiějué","to solve; solution"],
+  ["問題","wèntí","question; problem"],["答案","dá'àn","answer; solution"],
+  ["結果","jiéguǒ","result; outcome"],["原因","yuányīn","reason; cause"],
+  ["影響","yǐngxiǎng","influence; to affect"],["目的","mùdì","purpose; goal"],
+  ["希望","xīwàng","hope; to hope; to wish"],["夢想","mèngxiǎng","dream; aspiration"],
+  ["成功","chénggōng","success; to succeed"],["失敗","shībài","failure; to fail"],
+  ["努力","nǔlì","effort; to work hard"],["進步","jìnbù","progress; to improve"],
+  ["經驗","jīngyàn","experience"],["能力","nénglì","ability; capability"],
+  ["機會","jīhuì","opportunity; chance"],["條件","tiáojiàn","condition; requirement"],
+  ["環境","huánjìng","environment; surroundings"],["社會","shèhuì","society"],
+  ["政府","zhèngfǔ","government"],["法律","fǎlǜ","law"],["制度","zhìdù","system; institution"],
+  ["歷史","lìshǐ","history"],["文化","wénhuà","culture"],["科學","kēxué","science"],
+  ["技術","jìshù","technology; skill"],["發展","fāzhǎn","development; to develop"],
+  ["現代","xiàndài","modern; contemporary"],["傳統","chuántǒng","tradition; traditional"],
+  ["自然","zìrán","nature; natural; naturally"],["世界","shìjiè","world"],
+  ["生活","shēnghuó","life; to live"],["生命","shēngmìng","life; existence"],
+  ["幸福","xìngfú","happiness; happy"],["健康","jiànkāng","health; healthy"],
+  ["快樂","kuàilè","happiness; happy; joyful"],["平靜","píngjìng","calm; peaceful"],
+  ["方便","fāngbiàn","convenient; handy"],["安全","ānquán","safe; security"],
+  ["危險","wēixiǎn","danger; dangerous"],["小心","xiǎoxīn","careful; be careful"]
+];
+
+// ==================== SRS ALGORITHM ====================
+function computeInterval(card, rating) {
+  // Returns new {interval, easeFactor, repetitions, lapses}
+  let { interval = 0, easeFactor = 2.5, repetitions = 0, lapses = 0 } = card;
+
+  if (rating === 1) { // Again
+    lapses += 1;
+    repetitions = 0;
+    interval = 1;
+    easeFactor = Math.max(1.3, easeFactor - 0.2);
+  } else if (rating === 2) { // Hard
+    easeFactor = Math.max(1.3, easeFactor - 0.15);
+    interval = Math.max(1, Math.round(interval * 1.2));
+    repetitions += 1;
+  } else if (rating === 3) { // Good
+    if (repetitions === 0) interval = 1;
+    else if (repetitions === 1) interval = 6;
+    else interval = Math.round(interval * easeFactor);
+    repetitions += 1;
+  } else { // Easy (4)
+    easeFactor = Math.min(9.9, easeFactor + 0.15);
+    if (repetitions === 0) interval = 4;
+    else if (repetitions === 1) interval = 10;
+    else interval = Math.round(interval * easeFactor * 1.3);
+    repetitions += 1;
+  }
+
+  easeFactor = Math.max(1.3, Math.min(9.9, easeFactor));
+  return { interval, easeFactor, repetitions, lapses };
+}
+
+function previewIntervals(card) {
+  const ratings = [1, 2, 3, 4];
+  return ratings.map(r => {
+    const { interval } = computeInterval(card, r);
+    return formatInterval(interval);
+  });
+}
+
+function formatInterval(days) {
+  if (days < 1) return '<1d';
+  if (days === 1) return '1d';
+  if (days < 30) return days + 'd';
+  if (days < 365) return Math.round(days / 30) + 'mo';
+  return (days / 365).toFixed(1) + 'yr';
+}
+
+function todayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function addDays(dateStr, n) {
+  const d = new Date(dateStr + 'T00:00:00');
+  d.setDate(d.getDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+
+// ==================== STATE ====================
+const STORAGE_KEY = 'chineseFlashcards';
+
+let state = {
+  version: 1,
+  settings: { newCardsPerDay: 20, showPinyin: false },
+  cards: {},     // index -> card data
+  stats: {},     // date -> stats
+  meta: { streakStart: null, longestStreak: 0, totalReviewed: 0, totalLearned: 0, lastStudyDate: null },
+  session: { date: null, newCardsIntroducedToday: 0, queue: [], currentIndex: 0, sessionReviewed: 0, sessionCorrect: 0 }
+};
+
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function loadState() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) {
+    try {
+      const saved = JSON.parse(raw);
+      state = Object.assign({}, state, saved);
+      state.settings = Object.assign({}, { newCardsPerDay: 20, showPinyin: false }, saved.settings);
+      state.meta = Object.assign({}, state.meta, saved.meta);
+      state.session = Object.assign({}, state.session, saved.session);
+    } catch (e) { /* use defaults */ }
+  }
+}
+
+// ==================== QUEUE BUILDING ====================
+function buildQueue() {
+  const today = todayStr();
+  const due = [];
+  const newCards = [];
+
+  // Separate due reviews from new cards
+  for (let i = 0; i < CHARS.length; i++) {
+    const card = state.cards[i];
+    if (!card) {
+      newCards.push(i);
+    } else {
+      if (card.dueDate <= today) {
+        due.push(i);
+      }
+    }
+  }
+
+  // Shuffle due reviews
+  shuffle(due);
+
+  // How many new cards can we add today?
+  let newIntroducedToday = 0;
+  if (state.session.date === today) {
+    newIntroducedToday = state.session.newCardsIntroducedToday || 0;
+  }
+  const newSlots = Math.max(0, state.settings.newCardsPerDay - newIntroducedToday);
+  const newToAdd = newCards.slice(0, newSlots);
+
+  return { queue: [...due, ...newToAdd], newCount: newToAdd.length };
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+// ==================== STREAK CALCULATION ====================
+function calcStreak() {
+  const today = todayStr();
+  const yesterday = addDays(today, -1);
+  const lastDate = state.meta.lastStudyDate;
+
+  if (!lastDate) return 0;
+
+  // If studied today or yesterday, count streak days
+  const dates = Object.keys(state.stats).sort();
+  if (dates.length === 0) return 0;
+
+  let streak = 0;
+  let check = lastDate;
+
+  // Walk backwards from last study date
+  while (state.stats[check]) {
+    streak++;
+    check = addDays(check, -1);
+  }
+
+  // Streak is broken if last study date was before yesterday
+  if (lastDate < yesterday) return 0;
+  return streak;
+}
+
+// ==================== SCREENS ====================
+function showScreen(id) {
+  ['screen-dashboard', 'screen-study', 'screen-summary'].forEach(s => {
+    document.getElementById(s).classList.toggle('hidden', s !== id);
+  });
+}
+
+// ==================== DASHBOARD ====================
+function renderDashboard() {
+  const today = todayStr();
+  let dueCount = 0;
+  for (let i = 0; i < CHARS.length; i++) {
+    const card = state.cards[i];
+    if (!card) continue;
+    if (card.dueDate <= today) dueCount++;
+  }
+
+  // Also count new cards available today
+  let newIntroducedToday = (state.session.date === today) ? (state.session.newCardsIntroducedToday || 0) : 0;
+  const newAvail = Math.max(0, state.settings.newCardsPerDay - newIntroducedToday);
+  const totalDue = dueCount + Math.min(newAvail, CHARS.length - Object.keys(state.cards).length);
+
+  document.getElementById('stat-due').textContent = totalDue;
+  document.getElementById('stat-learned').textContent = Object.keys(state.cards).length;
+  document.getElementById('stat-total').textContent = CHARS.length;
+
+  const streak = calcStreak();
+  document.getElementById('streak-count').textContent = streak + (streak === 1 ? ' day streak' : ' day streak');
+  document.getElementById('streak-longest').textContent = 'Longest: ' + state.meta.longestStreak + ' days';
+
+  // Info line
+  const today2 = new Date();
+  const opts = { weekday: 'long', month: 'long', day: 'numeric' };
+  document.getElementById('dash-info').textContent = today2.toLocaleDateString(undefined, opts);
+
+  // Begin button
+  document.getElementById('btn-begin').disabled = (totalDue === 0);
+  if (totalDue === 0) {
+    document.getElementById('btn-begin').textContent = '完成 — All Done for Today!';
+  } else {
+    document.getElementById('btn-begin').textContent = '開始學習   Begin Study';
+  }
+}
+
+// ==================== STUDY ====================
+let currentCardIdx = -1;
+let flipped = false;
+let sessionQueue = [];
+let sessionNewCount = 0;
+let sessionPos = 0;
+let sessionReviewed = 0;
+let sessionCorrect = 0;
+
+function startStudy() {
+  const today = todayStr();
+  const { queue, newCount } = buildQueue();
+
+  if (queue.length === 0) {
+    renderDashboard();
+    return;
+  }
+
+  // Resume session if same day
+  if (state.session.date === today && state.session.queue.length > 0) {
+    sessionQueue = state.session.queue;
+    sessionPos = state.session.currentIndex;
+    sessionReviewed = state.session.sessionReviewed;
+    sessionCorrect = state.session.sessionCorrect;
+    sessionNewCount = state.session.newCardsIntroducedToday;
+  } else {
+    sessionQueue = queue;
+    sessionPos = 0;
+    sessionReviewed = 0;
+    sessionCorrect = 0;
+    sessionNewCount = (state.session.date === today ? state.session.newCardsIntroducedToday : 0);
+    state.session = {
+      date: today,
+      newCardsIntroducedToday: sessionNewCount,
+      queue: sessionQueue,
+      currentIndex: 0,
+      sessionReviewed: 0,
+      sessionCorrect: 0
+    };
+    saveState();
+  }
+
+  showScreen('screen-study');
+  showCard();
+}
+
+function showCard() {
+  if (sessionPos >= sessionQueue.length) {
+    endSession();
+    return;
+  }
+
+  currentCardIdx = sessionQueue[sessionPos];
+  flipped = false;
+
+  const [char, pinyin, meaning] = CHARS[currentCardIdx];
+  const card = state.cards[currentCardIdx] || {};
+
+  // Front
+  document.getElementById('card-char-front').textContent = char;
+  const pinyinFront = document.getElementById('card-pinyin-front');
+  pinyinFront.textContent = pinyin;
+  pinyinFront.classList.toggle('hidden', !state.settings.showPinyin);
+
+  // Back
+  document.getElementById('card-char-back').textContent = char;
+  document.getElementById('card-pinyin-back').textContent = pinyin;
+  document.getElementById('card-meaning').textContent = meaning;
+
+  // Extra info
+  const isNew = !state.cards[currentCardIdx];
+  document.getElementById('card-extra').textContent = isNew ? 'New card' : ('Seen ' + (card.repetitions || 0) + ' times');
+
+  // Intervals preview
+  const [a, h, g, e] = previewIntervals(card);
+  document.getElementById('int-again').textContent = a;
+  document.getElementById('int-hard').textContent = h;
+  document.getElementById('int-good').textContent = g;
+  document.getElementById('int-easy').textContent = e;
+
+  // UI
+  document.getElementById('card-3d').classList.remove('flipped');
+  document.getElementById('btn-show').classList.remove('hidden');
+  document.getElementById('rating-grid').classList.add('hidden');
+
+  updateProgress();
+}
+
+function flipCard() {
+  if (flipped) return;
+  flipped = true;
+  document.getElementById('card-3d').classList.add('flipped');
+  document.getElementById('btn-show').classList.add('hidden');
+  document.getElementById('rating-grid').classList.remove('hidden');
+}
+
+function rateCard(rating) {
+  if (!flipped) { flipCard(); return; }
+
+  const today = todayStr();
+  const isNew = !state.cards[currentCardIdx];
+  const existingCard = state.cards[currentCardIdx] || {};
+
+  const updated = computeInterval(existingCard, rating);
+  updated.dueDate = addDays(today, updated.interval);
+  updated.lastReviewed = today;
+
+  state.cards[currentCardIdx] = updated;
+
+  // Stats
+  if (isNew) {
+    sessionNewCount++;
+    state.meta.totalLearned = Object.keys(state.cards).length;
+  }
+  sessionReviewed++;
+  if (rating >= 3) sessionCorrect++;
+  state.meta.totalReviewed++;
+
+  // Daily stats
+  if (!state.stats[today]) state.stats[today] = { reviewed: 0, newIntroduced: 0, again: 0, hard: 0, good: 0, easy: 0 };
+  state.stats[today].reviewed++;
+  if (isNew) state.stats[today].newIntroduced++;
+  const ratingKey = ['again', 'hard', 'good', 'easy'][rating - 1];
+  state.stats[today][ratingKey]++;
+
+  // Update streak
+  state.meta.lastStudyDate = today;
+  const streak = calcStreak();
+  if (streak > state.meta.longestStreak) state.meta.longestStreak = streak;
+
+  // Session state
+  sessionPos++;
+  state.session = {
+    date: today,
+    newCardsIntroducedToday: sessionNewCount,
+    queue: sessionQueue,
+    currentIndex: sessionPos,
+    sessionReviewed: sessionReviewed,
+    sessionCorrect: sessionCorrect
+  };
+
+  saveState();
+  showCard();
+}
+
+function updateProgress() {
+  const total = sessionQueue.length;
+  const done = sessionPos;
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('study-count').textContent = done + ' / ' + total;
+}
+
+function endSession() {
+  const today = todayStr();
+
+  // Find next due date
+  let nextDue = null;
+  for (const [idx, card] of Object.entries(state.cards)) {
+    if (!nextDue || card.dueDate < nextDue) nextDue = card.dueDate;
+  }
+
+  document.getElementById('sum-reviewed').textContent = sessionReviewed;
+  document.getElementById('sum-new').textContent = sessionNewCount;
+  const acc = sessionReviewed > 0 ? Math.round((sessionCorrect / sessionReviewed) * 100) : 0;
+  document.getElementById('sum-correct').textContent = acc + '%';
+
+  if (nextDue) {
+    const d = new Date(nextDue + 'T00:00:00');
+    const opts = { month: 'short', day: 'numeric' };
+    document.getElementById('sum-next').textContent = d.toLocaleDateString(undefined, opts);
+  } else {
+    document.getElementById('sum-next').textContent = '–';
+  }
+
+  // Clear session queue
+  state.session.queue = [];
+  saveState();
+
+  showScreen('screen-summary');
+}
+
+// ==================== SETTINGS ====================
+function openSettings() {
+  document.getElementById('settings-overlay').classList.add('open');
+  document.getElementById('set-new-per-day').value = state.settings.newCardsPerDay;
+  const toggle = document.getElementById('toggle-pinyin');
+  toggle.classList.toggle('on', state.settings.showPinyin);
+  toggle.setAttribute('aria-checked', state.settings.showPinyin ? 'true' : 'false');
+}
+
+function closeSettings() {
+  // Save settings on close
+  state.settings.newCardsPerDay = Math.max(1, Math.min(100, parseInt(document.getElementById('set-new-per-day').value) || 20));
+  saveState();
+  document.getElementById('settings-overlay').classList.remove('open');
+}
+
+function togglePinyin() {
+  state.settings.showPinyin = !state.settings.showPinyin;
+  const toggle = document.getElementById('toggle-pinyin');
+  toggle.classList.toggle('on', state.settings.showPinyin);
+  toggle.setAttribute('aria-checked', state.settings.showPinyin ? 'true' : 'false');
+  saveState();
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'chinese-flashcards-' + todayStr() + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importData() {
+  document.getElementById('file-import').click();
+}
+
+function handleImport(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const imported = JSON.parse(ev.target.result);
+      state = imported;
+      saveState();
+      renderDashboard();
+      closeSettings();
+      alert('Import successful!');
+    } catch (err) {
+      alert('Import failed: invalid JSON');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+function resetProgress() {
+  if (!confirm('Reset ALL progress? This cannot be undone.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  state = {
+    version: 1,
+    settings: { newCardsPerDay: 20, showPinyin: false },
+    cards: {},
+    stats: {},
+    meta: { streakStart: null, longestStreak: 0, totalReviewed: 0, totalLearned: 0, lastStudyDate: null },
+    session: { date: null, newCardsIntroducedToday: 0, queue: [], currentIndex: 0, sessionReviewed: 0, sessionCorrect: 0 }
+  };
+  saveState();
+  renderDashboard();
+  closeSettings();
+}
+
+// ==================== EVENT LISTENERS ====================
+document.getElementById('btn-begin').addEventListener('click', startStudy);
+document.getElementById('btn-back').addEventListener('click', () => { showScreen('screen-dashboard'); renderDashboard(); });
+document.getElementById('btn-done').addEventListener('click', () => { showScreen('screen-dashboard'); renderDashboard(); });
+document.getElementById('btn-settings').addEventListener('click', openSettings);
+document.getElementById('btn-close-settings').addEventListener('click', closeSettings);
+document.getElementById('settings-overlay').addEventListener('click', e => { if (e.target === document.getElementById('settings-overlay')) closeSettings(); });
+document.getElementById('toggle-pinyin').addEventListener('click', togglePinyin);
+document.getElementById('btn-export').addEventListener('click', exportData);
+document.getElementById('btn-import').addEventListener('click', importData);
+document.getElementById('file-import').addEventListener('change', handleImport);
+document.getElementById('btn-reset').addEventListener('click', resetProgress);
+
+// Card flip
+document.getElementById('card-3d').addEventListener('click', flipCard);
+document.getElementById('btn-show').addEventListener('click', flipCard);
+
+// Rating buttons
+document.querySelectorAll('.btn-rate').forEach(btn => {
+  btn.addEventListener('click', () => rateCard(parseInt(btn.dataset.rating)));
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  const screen = document.getElementById('screen-study');
+  if (screen.classList.contains('hidden')) return;
+
+  if (e.key === ' ' || e.key === 'Enter') {
+    e.preventDefault();
+    if (!flipped) flipCard();
+    else rateCard(3); // Good on Enter
+  } else if (e.key === '1') rateCard(1);
+  else if (e.key === '2') rateCard(2);
+  else if (e.key === '3') rateCard(3);
+  else if (e.key === '4') rateCard(4);
+  else if (e.key === 'Escape') {
+    if (!document.getElementById('settings-overlay').classList.contains('open')) {
+      showScreen('screen-dashboard');
+      renderDashboard();
+    } else {
+      closeSettings();
+    }
+  }
+});
+
+// ==================== INIT ====================
+loadState();
+renderDashboard();
+showScreen('screen-dashboard');
+</script>
+</body>
+</html>

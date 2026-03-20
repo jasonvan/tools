@@ -1057,8 +1057,9 @@ function buildQueue() {
     }
   }
 
-  // Shuffle due reviews
+  // Shuffle due reviews and new cards
   shuffle(due);
+  shuffle(newCards);
 
   // How many new cards can we add today?
   let newIntroducedToday = 0;
@@ -1203,6 +1204,13 @@ function showCard() {
   currentCardIdx = sessionQueue[sessionPos];
   flipped = false;
 
+  // Snap card back to front instantly (no transition) so the answer isn't briefly visible
+  const card3d = document.getElementById('card-3d');
+  card3d.style.transition = 'none';
+  card3d.classList.remove('flipped');
+  card3d.offsetHeight; // force reflow before restoring transition
+  card3d.style.transition = '';
+
   const [char, pinyin, meaning] = CHARS[currentCardIdx];
   const card = state.cards[currentCardIdx] || {};
 
@@ -1229,7 +1237,6 @@ function showCard() {
   document.getElementById('int-easy').textContent = e;
 
   // UI
-  document.getElementById('card-3d').classList.remove('flipped');
   document.getElementById('btn-show').classList.remove('hidden');
   document.getElementById('rating-grid').classList.add('hidden');
 

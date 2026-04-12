@@ -779,14 +779,39 @@
       return String(n).padStart(2, '0');
     }
 
+    // ==================== WEEKDAY COUNTER ====================
+    function countWeekdays(targetISO) {
+      const today  = parseLocalDate(todayDateISO());
+      const end    = parseLocalDate(targetISO);
+      let count    = 0;
+      const cursor = new Date(today);
+      while (cursor <= end) {
+        const day = cursor.getDay(); // 0=Sun, 6=Sat
+        if (day !== 0 && day !== 6) count++;
+        cursor.setDate(cursor.getDate() + 1);
+      }
+      return count;
+    }
+
     // ==================== MILESTONE MESSAGE ====================
-    function getMilestoneMsg(totalDays) {
-      if (totalDays <= 0)   return "SCHOOL'S OUT FOR SUMMER! 🎉";
-      if (totalDays <= 7)   return "THIS IS IT! Summer is almost here! 🌟";
-      if (totalDays <= 20)  return "Last few weeks! You've got this! 💪";
-      if (totalDays <= 50)  return "Almost there! The finish line is in sight! 🏁";
-      if (totalDays <= 100) return "Getting closer! You're halfway there! 🌤️";
-      return "Keep going! Summer is coming! ☀️";
+    // schoolDays = weekdays (Mon–Fri) remaining
+    function getMilestoneMsg(schoolDays) {
+      if (schoolDays <= 0)   return "SCHOOL'S OUT FOR SUMMER! 🎉";
+      if (schoolDays === 1)  return "TODAY IS THE LAST DAY! 🥳";
+      if (schoolDays === 2)  return "Just 2 school days left — summer is HERE! 🎊";
+      if (schoolDays === 3)  return "Only 3 school days to go! Summer is knocking! 🚪";
+      if (schoolDays <= 5)   return "Last week of school! You're almost free! 🌟";
+      if (schoolDays <= 10)  return "Under 2 weeks of school left! 🏁";
+      if (schoolDays <= 15)  return "About 3 school weeks left — almost time to sleep in! 😴";
+      if (schoolDays <= 20)  return "Under a month of school days to go! ☀️";
+      if (schoolDays <= 30)  return "About 6 school weeks left — you've totally got this! 💪";
+      if (schoolDays <= 40)  return "Around 2 months of school days to go! 🗓️";
+      if (schoolDays <= 60)  return "Getting there! Summer is on the horizon! 🌅";
+      if (schoolDays <= 74)  return "Under 75 school days! The end is in sight! 🔭";
+      if (schoolDays === 75) return "75 school days to go — a great milestone! Keep going! 💯";
+      if (schoolDays <= 100) return "Just over 75 school days — you're on the downhill slope! ⛷️";
+      if (schoolDays <= 130) return "Halfway through! Keep the momentum! 🚂";
+      return "Long road ahead, but summer is always worth it! ☀️";
     }
 
     // ==================== COUNTDOWN ENGINE ====================
@@ -817,7 +842,8 @@
         document.getElementById('minutes-number').textContent = pad(mins);
         document.getElementById('seconds-number').textContent = pad(secs);
 
-        document.getElementById('milestone-msg').textContent = getMilestoneMsg(days);
+        const schoolDays = countWeekdays(state.targetDate);
+        document.getElementById('milestone-msg').textContent = getMilestoneMsg(schoolDays);
       }
 
       // Target date display

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>School Countdown — TAS Grade 3</title>
+  <title>School Year Countdown</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Patrick+Hand:wght@400&display=swap" rel="stylesheet">
@@ -593,7 +593,7 @@
     <header class="header">
       <span class="header-apple">🍎</span>
       <h1>School Year Countdown</h1>
-      <p class="subtitle">Taipei American School &mdash; Grade 3</p>
+      <p class="subtitle" id="subtitle-line">School Year Progress</p>
     </header>
 
     <!-- MAIN COUNTDOWN -->
@@ -629,7 +629,7 @@
     <div class="schools-out hidden" id="schools-out">
       <span class="big-emoji">🎉</span>
       <h2>School's Out for Summer!</h2>
-      <p>Have an amazing summer, Grade 3! ☀️</p>
+      <p>Have an amazing summer! ☀️</p>
     </div>
 
     <!-- PROGRESS BAR -->
@@ -679,11 +679,15 @@
     <div class="settings-panel hidden" id="settings-panel">
       <h3>⚙️ Settings</h3>
       <div class="settings-group">
-        <label for="date-input">Last day of school</label>
+        <label for="start-date-input">First day of school (school year start)</label>
+        <input type="date" id="start-date-input" />
+      </div>
+      <div class="settings-group">
+        <label for="date-input">Last day of school (end date)</label>
         <input type="date" id="date-input" />
       </div>
       <div class="settings-actions">
-        <button class="btn-save" onclick="saveTargetDate()">Save date</button>
+        <button class="btn-save" onclick="saveSettings()">Save dates</button>
         <button class="btn-reset" onclick="resetData()">Reset all data</button>
       </div>
     </div>
@@ -866,16 +870,20 @@
       const isHidden = panel.classList.contains('hidden');
       panel.classList.toggle('hidden');
       if (isHidden) {
+        document.getElementById('start-date-input').value = state.schoolYearStart;
         document.getElementById('date-input').value = state.targetDate;
       }
     }
 
-    function saveTargetDate() {
-      const val = document.getElementById('date-input').value;
-      if (!val) return;
-      state.targetDate = val;
+    function saveSettings() {
+      const startVal = document.getElementById('start-date-input').value;
+      const endVal = document.getElementById('date-input').value;
+      if (!endVal) return;
+      if (startVal) state.schoolYearStart = startVal;
+      state.targetDate = endVal;
       saveState();
       updateCountdown();
+      updateStats();
       document.getElementById('settings-panel').classList.add('hidden');
     }
 
